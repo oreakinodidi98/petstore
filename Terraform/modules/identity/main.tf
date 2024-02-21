@@ -14,13 +14,7 @@ resource "azurerm_role_assignment" "role_rg" {
   role_definition_name = "Network Contributor"
   principal_id         = azurerm_user_assigned_identity.app_assigned.principal_id
 }
-#create role assignment for acr pull with managed identity
-resource "azurerm_role_assignment" "mi_role_acrpull" {
-  scope                = var.acr_id
-  role_definition_name = "AcrPull"
-  principal_id         = azurerm_user_assigned_identity.app_assigned.principal_id
-  skip_service_principal_aad_check = true
-}
+
 # create contributor role assignment at subscription scope with managed identity
 resource "azurerm_role_assignment" "contributor_role_assignment" {
   scope                = data.azurerm_subscription.current.id
@@ -37,6 +31,7 @@ resource "azurerm_role_assignment" "mi_kv_admin" {
   principal_id       = azurerm_user_assigned_identity.app_assigned.principal_id
   role_definition_name = "Key Vault Administrator"
 }
+
 # create fedrated app role assignment at subscription scope with managed identity
 resource "azurerm_federated_identity_credential" "petstore_assigned_identity_dev" {
   name                = "dev-petstore-fed-identity"

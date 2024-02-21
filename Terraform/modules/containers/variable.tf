@@ -32,3 +32,15 @@ variable "vm_sku" {
 }
 variable "managed_identity_id" {
 }
+variable "admin_groups" {
+  type = list(string)
+  default = [ "21b860b5-43ea-42ca-bec8-68793176c3c5" ]
+}
+variable "k8s_namespace" {
+  type = string
+  default = "app"
+}
+variable "k8s_service_account_name" {
+  type = string
+  default = "workload"
+}

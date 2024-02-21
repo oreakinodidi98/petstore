@@ -3,12 +3,7 @@ resource "azurerm_log_analytics_workspace" "aks" {
   location            = var.location
   resource_group_name = var.resourcegroup
   sku                 = var.log_analytics_workspace_sku
-
-  lifecycle {
-    ignore_changes = [
-      name,
-    ]
-  }
+ retention_in_days   = 30
 }
 resource "azurerm_monitor_workspace" "aks_monitor_workspace" {
   name                = "${var.env_name}-monitor"
