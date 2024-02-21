@@ -48,12 +48,13 @@ identity {
       "env"      = "demo"
   }
 
-  # linux_profile {
-  #   admin_username = "ubuntu"
-  #   ssh_key {
-  #     key_data = file(var.ssh_public_key)
-  #   }
-  # }
+  linux_profile {
+    admin_username = "ubuntu"
+    ssh_key {
+      key_data = file(var.ssh_public_key)
+      # key_data = jsondecode(azapi_resource_action.ssh_public_key_gen.output).publicKey
+    }
+  }
 network_profile {
     network_plugin = "azure"
     load_balancer_sku = "standard"

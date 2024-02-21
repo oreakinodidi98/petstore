@@ -31,6 +31,7 @@ module "containers" {
   system_node_count   = var.system_node_count
   log_analytics_id    = module.monitoring.azurerm_log_analytics_workspace_id
   vm_sku              = var.vm_sku
+  resourcegroup_id    = azurerm_resource_group.resourcegroup.id
   min_node_count      = var.min_node_count
   max_node_count      = var.max_node_count
   managed_identity_id = module.managed_identity.managed_identity_id

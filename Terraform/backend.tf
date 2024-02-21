@@ -20,6 +20,7 @@ terraform {
       source  = "hashicorp/kubernetes"
       version = "2.25.2"
     }
+
   }
   #initialise the backend
   backend "azurerm" {

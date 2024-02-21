@@ -1,6 +1,7 @@
 data "azurerm_subscription" "current" {}
 #data source that is reading the data from client config. using that data in the creation of the managed identity
 data "azuread_client_config" "current" {}
+
 #create managed identity
 resource "azurerm_user_assigned_identity" "app_assigned" {
   name                = "petstore-identity"
@@ -20,12 +21,12 @@ resource "azurerm_role_assignment" "mi_role_acrpull" {
   principal_id         = azurerm_user_assigned_identity.app_assigned.principal_id
   skip_service_principal_aad_check = true
 }
-# # create contributor role assignment at subscription scope with managed identity
-# resource "azurerm_role_assignment" "contributor_role_assignment" {
-#   scope                = var.resourcegroup_id
-#   principal_id         = azurerm_user_assigned_identity.app_assigned.principal_id
-#   role_definition_name = "Owner"
-# }
+# create contributor role assignment at subscription scope with managed identity
+resource "azurerm_role_assignment" "contributor_role_assignment" {
+  scope                = data.azurerm_subscription.current.id
+  principal_id         = azurerm_user_assigned_identity.app_assigned.principal_id
+  role_definition_name = "Contributor"
+}
 resource "azurerm_role_assignment" "website_contributor" {
   scope                = var.resourcegroup_id
   role_definition_name = "Website Contributor"
