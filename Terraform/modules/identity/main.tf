@@ -19,12 +19,12 @@ resource "azurerm_role_assignment" "mi_role_acrpull" {
   role_definition_name = "AcrPull"
   principal_id         = azurerm_user_assigned_identity.app_assigned.principal_id
 }
-# create contributor role assignment at subscription scope with managed identity
-resource "azurerm_role_assignment" "contributor_role_assignment" {
-  scope                = var.resourcegroup_id
-  principal_id         = azurerm_user_assigned_identity.app_assigned.principal_id
-  role_definition_name = "Owner"
-}
+# # create contributor role assignment at subscription scope with managed identity
+# resource "azurerm_role_assignment" "contributor_role_assignment" {
+#   scope                = var.resourcegroup_id
+#   principal_id         = azurerm_user_assigned_identity.app_assigned.principal_id
+#   role_definition_name = "Owner"
+# }
 resource "azurerm_role_assignment" "website_contributor" {
   scope                = var.resourcegroup_id
   role_definition_name = "Website Contributor"
