@@ -92,7 +92,7 @@ output "key_vault_id" {
   value = module.keyvault.key_vault_id
 }
 output "key_vault_name" {
-  value     = module.keyvault.key_vault_name
+  value = module.keyvault.key_vault_name
   # sensitive = true
 }
 
