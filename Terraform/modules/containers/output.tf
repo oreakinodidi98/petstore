@@ -26,7 +26,7 @@ output "registry_password" {
 output "registry_username" {
   description = "The Username associated with the Container Registry Admin account"
   value       = azurerm_container_registry.acr.admin_username
-  sensitive   = true
+  # sensitive   = true
 }
 #output aks name
 output "aks_name" {
