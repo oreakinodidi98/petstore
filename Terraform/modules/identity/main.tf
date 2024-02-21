@@ -23,7 +23,7 @@ resource "azurerm_role_assignment" "mi_role_acrpull" {
 resource "azurerm_role_assignment" "contributor_role_assignment" {
   scope                = var.resourcegroup_id
   principal_id         = azurerm_user_assigned_identity.app_assigned.principal_id
-  role_definition_name = "Contributor"
+  role_definition_name = "Owner"
 }
 resource "azurerm_role_assignment" "website_contributor" {
   scope                = var.resourcegroup_id
