@@ -1,0 +1,67 @@
+name: 'Terraform Plan'
+
+on:
+    push:
+        branches:
+            - development
+        paths:
+            - 'Terraform/**'
+            - '.github/workflows/**'
+    workflow_dispatch:
+
+env:
+    ARM_CLIENT_ID: ${{secrets.ARM_CLIENT_ID}}
+    ARM_CLIENT_SECRET: ${{secrets.ARM_CLIENT_SECRET}}
+    ARM_SUBSCRIPTION_ID: ${{secrets.ARM_SUBSCRIPTION_ID}}
+    ARM_TENANT_ID: ${{secrets.ARM_TENANT_ID}}
+    BACKEND_RESOURCE_GROUP_NAME: ${{secrets.BACKEND_RESOURCE_GROUP_NAME}}
+    BACKEND_STORAGE_ACCOUNT_NAME: ${{secrets.BACKEND_STORAGE_ACCOUNT_NAME}}
+    BACKEND_STORAGE_CONTAINER_NAME: ${{secrets.BACKEND_STORAGE_CONTAINER_NAME}}
+    TF_BACKEND_PATH: ${{secrets.TF_BACKEND_KEY}}
+    AZURE_STORAGE_ACCOUNT_KEY: ${{secrets.AZURE_STORAGE_ACCOUNT_KEY}}
+    WORKING_DIRECTORY: './Terraform'
+    TF_LOG: INFO
+    TF_INPUT: false
+    TF_IN_AUTOMATION: true
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  terraform:
+    name: 'Terraform'
+    runs-on: ubuntu-latest
+
+    #use bash shell regardless of github actions runner 
+    defaults:
+      run:
+        shell: bash
+# clone repo to runner machine 
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+# setup terraform on runner machine
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v1
+      with:
+        terraform_wrapper: false
+#initialize terraform
+    - name: Terraform Init
+      run: terraform init
+      id: init
+      working-directory: ./Terraform
+# Checks that all Terraform configuration files adhere to a canonical format
+    - name: Terraform Format
+      run: terraform fmt -check
+      working-directory: ./Terraform
+# run terraform validate even if fmt is bad 
+    - name: Terraform Validate
+      id: validate
+      if: (success()||failure())
+      run: terraform validate
+      working-directory: ./Terraform
+# run terraform plan if validate is successful
+    - name: Terraform Plan
+      run: terraform plan
+      working-directory: ./Terraform

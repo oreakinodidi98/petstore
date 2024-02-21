@@ -103,5 +103,5 @@ output "secret_docker_password" {
 }
 output "secret_docker_username" {
   value     = module.kv_secret_docker_username.value
-  # sensitive = true
+  sensitive = true
 }

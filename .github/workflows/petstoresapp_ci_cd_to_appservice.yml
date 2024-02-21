@@ -1,0 +1,80 @@
+name: Pet Store App CI/CD to Azure App Service
+  
+  
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - src/petstoreapp/**
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+   
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: Download TF artifact, Build and Deploy Pet Store App to Azure App Service
+    steps:
+    # This authenticates and logs into Azure
+    - uses: actions/checkout@v3
+    - uses: azure/login@v1
+      with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+  # Download the output file from Azure Blob Storage
+    - name: Download from Azure Blob Storage
+      uses: azure/CLI@v1
+      with:
+       inlineScript: |
+        az storage blob download --account-name ${{ secrets.BACKEND_STORAGE_ACCOUNT_NAME }} --account-key ${{ secrets.AZURE_STORAGE_ACCOUNT_KEY }} --name petstore_tf_out.txt --file petstore_tf_out.txt --container-name ${{ secrets.BACKEND_STORAGE_CONTAINER_NAME }} --overwrite           
+# Load the file content into environment variables
+    - name: Load file content into environment variable
+      run: |
+        while IFS= read -r line; do
+          key=$(echo $line | cut -d = -f 1)
+          value=$(echo $line | cut -d = -f 2-)
+          echo "$key=$value" >> $GITHUB_ENV
+        done < static_tf_out.txt
+    - uses: actions/checkout@v2
+    - name: Checking the file system listing for Pet Store App
+      run: |
+        ls -al
+    - name: Build the Soul Machines React app
+      run: |
+        cd src/petstoreapp/soulmachines-react-app
+        npm install
+        npm run build
+    - name: Copy minified Soul Machines React app to Spring Boot static resources
+      run: |
+        mv src/petstoreapp/soulmachines-react-app/build/static/ src/petstoreapp/src/main/resources/static 
+        mv src/petstoreapp/soulmachines-react-app/build/index.html src/petstoreapp/src/main/resources/static/static
+    - name: Update the version.json
+      run: echo -n -e "{\"version\":\"${{ github.sha }}\",\"date\":\"$(date '+%m-%d-%Y %H:%M:%S')\"}" > src/petstoreapp/src/main/resources/static/content/version.json
+    - run: cat src/petstoreapp/src/main/resources/static/content/version.json
+    - uses: actions/setup-java@v2
+      name: Building Pet Store App with Java 13
+      with:
+        java-version: '13'
+        distribution: 'adopt'
+    - name: Run Maven build
+      run: mvn -f src/petstoreapp/pom.xml --batch-mode --update-snapshots verify
+    - name: Upload Maven build artifact
+      uses: actions/upload-artifact@v1
+      with:
+        name: artifact
+        path: src/petstoreapp/target/petstoreapp-0.0.1-SNAPSHOT.jar
+    - uses: azure/docker-login@v1
+      name: Build Docker image
+      with:
+        login-server: ${{ env.AZURE_CONTAINER_REGISTRY }}
+        username: ${{ env.AZURE_CONTAINER_REGISTRY_USERNAME }}
+        password: ${{ secrets.PETSTORECRSECRET }}
+    - name: Push Docker image to Azure Container Registry    
+      run: |
+        docker build petstore/petstoreapp -t ${{env.AZURE_CONTAINER_REGISTRY}}/petstoreapp:latest -t ${{ env.AZURE_CONTAINER_REGISTRY }}/petstoreapp:${{ github.sha }}
+        docker push ${{ env.AZURE_CONTAINER_REGISTRY }}/petstoreapp:${{ github.sha }}
+        docker push  ${{ env.AZURE_CONTAINER_REGISTRY }}/petstoreapp:latest
+      
