@@ -202,6 +202,9 @@ git checkout -b development
 
 ```az
 az ad sp create-for-rbac --name "AzurepetstoreOA" --role contributor --scopes /subscriptions/cb5b077c-3ef5-4b2e-83e5-490cc5ca0e19/resourceGroups/rg-petstore-01  --json-auth
+az role assignment create --assignee AzurepetstoreOA --role Contributor --scope /subscriptions/cb5b077c-3ef5-4b2e-83e5-490cc5ca0e19
+az ad sp create-for-rbac --name "AzureResumeOA" --role contributor --scopes /subscriptions/cb5b077c-3ef5-4b2e-83e5-490cc5ca0e19/resourceGroups/rg-staticpage-01  --json-auth
+
 ```
 
 - Then save the output in GH as AZURE_CREDENTIALS
