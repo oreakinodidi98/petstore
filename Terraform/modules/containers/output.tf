@@ -38,6 +38,11 @@ output "aks_id" {
     description = "value for aks id"
     value = azurerm_kubernetes_cluster.aks_cluster.id
 }
+#output aks object id
+output "aks_object_id" {
+    description = "value for output of the object ID of the kubelet identity"
+    value = azurerm_kubernetes_cluster.aks_cluster.kubelet_identity[0].object_id
+}
 #output aks fqdn
 output "aks_fqdn" {
     description = "value for aks fqdn"

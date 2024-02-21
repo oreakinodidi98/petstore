@@ -18,6 +18,7 @@ resource "azurerm_role_assignment" "mi_role_acrpull" {
   scope                = var.acr_id
   role_definition_name = "AcrPull"
   principal_id         = azurerm_user_assigned_identity.app_assigned.principal_id
+  skip_service_principal_aad_check = true
 }
 # # create contributor role assignment at subscription scope with managed identity
 # resource "azurerm_role_assignment" "contributor_role_assignment" {
