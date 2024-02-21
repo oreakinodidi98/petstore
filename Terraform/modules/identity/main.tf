@@ -23,14 +23,14 @@ resource "azurerm_role_assignment" "mi_role_acrpull" {
 }
 # create contributor role assignment at subscription scope with managed identity
 resource "azurerm_role_assignment" "contributor_role_assignment" {
-  scope                = var.resourcegroup_id
-  role_definition_name = "Contributor"
+  scope                = data.azurerm_subscription.current.id
   principal_id         = azurerm_user_assigned_identity.app_assigned.principal_id
+  role_definition_name = "Contributor"
 }
 resource "azurerm_role_assignment" "storage_blob_data_contributor" {
-  scope                = var.resourcegroup_id
-  role_definition_name = "Storage Blob Data Contributor"
+  scope                = data.azurerm_subscription.current.id
   principal_id         = azurerm_user_assigned_identity.app_assigned.principal_id
+  role_definition_name = "Storage Blob Data Contributor"
 }
 resource "azurerm_role_assignment" "mi_kv_admin" {
   scope              = var.key_vault_id
