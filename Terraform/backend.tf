@@ -20,6 +20,10 @@ terraform {
       source  = "hashicorp/kubernetes"
       version = "2.25.2"
     }
+    tls = {
+      source  = "hashicorp/tls"
+      version = "4.0.5"
+    }
 
   }
   #initialise the backend
