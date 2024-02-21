@@ -54,3 +54,8 @@ resource "azurerm_key_vault_access_policy" "terraform_subscribtion" {
   secret_permissions = ["Get", "List", "Set", "Delete", "Recover", "Backup", "Restore", "Purge"]
   storage_permissions = [ "Get" ]
 }
+resource "azurerm_role_assignment" "terraform_keyvault_access" {
+  scope                = azurerm_key_vault.kv.id
+  role_definition_name = "Key Vault Administrator"
+  principal_id         = data.azurerm_client_config.current.object_id
+}
