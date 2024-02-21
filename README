@@ -1,0 +1,179 @@
+## Azure opet store
+
+### Architecture refrence
+
+![alt text](./images/architecture.png)
+
+## 0.Setup enviroment
+
+- Create RG
+- create App service:[azurerm_linux_web_app](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/linux_web_app)
+- create App service Plan:[azurerm_service_plan](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/service_plan)
+- Create web app slot: [azurerm_linux_web_app_slot](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/linux_web_app_slot)
+- Create ACR: [azurerm_container_registry](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/container_registry)
+- Create AKS: [azurerm_kubernetes_cluster](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/kubernetes_cluster)
+- Create user managed identity: [azurerm_user_assigned_identity](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/user_assigned_identity)
+- create role assighnments:[azurerm_role_assignment](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/role_assignment)
+- create log analytic workspace: [azurerm_log_analytics_workspace](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/log_analytics_workspace)
+- create log analytic solutions: [azurerm_log_analytics_solution](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/log_analytics_solution)
+- create application insight: [azurerm_application_insights](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/application_insights)
+- create monitor action group: [azurerm_monitor_action_group](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/monitor_action_group)
+- create monitor action allert: [azurerm_monitor_metric_alert](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/monitor_metric_alert#metric_namespace)
+
+## 1.Build Docker Image
+
+- Copy the following locally to SRC, to build and test Docker Images.
+- PetStoreApp, PetStorePetService, PetStoreProductService & PetStoreOrderService
+- Build and Run the pet Store Pet Service Docker Image
+- cd to src/petstorepetservice
+- **Create local bridge network** so PetStoreApp, PetStorePetService, PetStoreProductService & PetStoreOrderService can communicate
+
+```docker
+docker network create petstorebridge
+```
+
+- build petstorepetservice docker image
+
+```docker
+docker build -t petstorepetservice .
+docker image ls
+```
+
+- test pet store application
+
+```docker
+docker run --rm --net petstorebridge --name petstorepetservice -p 8081:8081 -e PETSTOREPETSERVICE_SERVER_PORT=8081 -d petstorepetservice:latest
+
+http://loaclhost:8081
+http://localhost:8081/swagger-ui.html
+```
+
+- cd into petstoreproductservice
+- build petstoreproductservice docker image
+
+``` docker
+docker build -t petstoreproductservice .
+docker image ls
+```
+
+- test  application
+
+```docker
+docker run --rm --net petstorebridge --name petstoreproductservice -p 8082:8082 -e PETSTOREPRODUCTSERVICE_SERVER_PORT=8082 -d petstoreproductservice:latest
+
+docker ps
+http://loaclhost:8082
+http://localhost:8082/swagger-ui.html
+```
+
+- cd into petstoreorderservice
+- build petstoreorderservice docker image
+
+``` docker
+docker build -t petstoreorderservice .
+docker image ls
+```
+
+- test  application
+
+```docker
+docker run --rm --net petstorebridge --name petstoreorderservice -p 8083:8083 -e PETSTOREORDERSERVICE_SERVER_PORT=8083 -d petstoreorderservice:latest
+
+docker ps
+http://loaclhost:8083
+http://localhost:8083/swagger-ui.html
+```
+
+- cd into petstoreapp
+- build petstoreapp docker image
+
+``` docker
+docker build -t petstoreapp .
+docker image ls
+```
+
+- test  application
+
+```docker
+docker ps
+docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' petstoreorderservice -> ip Adress: 172.20.0.4
+docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' petstoreproductservice -> ip address = 172.20.0.3
+docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' petstorepetservice -> ip address = 172.20.0.2
+
+docker run --rm --net petstorebridge --name petstoreapp -p 8080:8080 -e PETSTOREAPP_SERVER_PORT=8080 -e PETSTOREPETSERVICE_URL=http://172.20.0.2:8081 -e PETSTOREPRODUCTSERVICE_URL=http://172.20.0.3:8082 -e PETSTOREORDERSERVICE_URL=http://172.20.0.4:8083 -d petstoreapp:latest
+
+docker run --rm --net petstorebridge --name petstoreapp -p 8080:8080 -e PETSTOREAPP_SERVER_PORT=8080 -e PETSTOREPETSERVICE_URL=http://172.18.0.2:8081 -e PETSTOREPRODUCTSERVICE_URL=http://172.18.0.3:8082 -e PETSTOREORDERSERVICE_URL=http://172.18.0.4:8083 -d petstoreapp:latest
+
+docker ps
+http://loaclhost:8080
+http://localhost:8083/swagger-ui.html
+docker kill $(docker ps -q)
+```
+
+## 2.Push Docker image to Azure Container Registry
+
+- loging to azure and update created ACR
+
+```az
+az login 
+az account list --output table
+az account set --subscribtion <my sub>
+az acr login --name <acr name>
+az acr update -n <acr name> -g <resource group> --admin-enabled true
+```
+
+- push pet store app image to ACR
+
+```az
+docker image tag petstoreapp:latest oapetacr.azurecr.io/petstoreapp:latest
+docker push oapetacr.azurecr.io/petstoreapp:latest
+docker image tag petstoreapp:latest <acr name>.azurecr.io/petstoreapp:latest
+docker push <acr name>.azurecr.io/petstoreapp:latest
+```
+
+- push pet store pet service image to ACR
+
+```az
+docker image tag petstorepetservice:latest oapetacr.azurecr.io/petstorepetservice:latest
+docker push oapetacr.azurecr.io/petstorepetservice:latest
+docker image tag petstorepetservice:latest <acr name>.azurecr.io/petstorepetservice:latest
+docker push <acr name>.azurecr.io/petstorepetservice:latest
+```
+
+- push pet store product service to ACR
+
+```az
+docker image tag petstoreproductservice:latest oapetacr.azurecr.io/petstoreproductservice:latest
+docker push oapetacr.azurecr.io/petstoreproductservice:latest
+docker image tag petstoreproductservice:latest <acr name>.azurecr.io/petstoreproductservice:latest
+docker push <acr name>.azurecr.io/petstoreproductservice:latest
+```
+
+- push pet store order service to ACR
+
+```az
+docker image tag petstoreorderservice:latest oapetacr.azurecr.io/petstoreorderservice:latest
+docker push oapetacr.azurecr.io/petstoreorderservice:latest
+docker image tag petstoreorderservice:latest <acr name>.azurecr.io/petstoreorderservice:latest
+docker push <acr name>.azurecr.io/petstoreorderservice:latest
+```
+
+## 3.Configure App Service for Continous deployment
+
+- use Web Hooks to deploy latest Azure Container Registry Docker image for Pet Store App
+- in app service terraform module include the following code
+
+```terraform
+  container_registry_use_managed_identity= true
+    container_registry_managed_identity_client_id = var.managed_identity_client_id
+      application_stack{
+    docker_image_name = "${var.acr_name}.azurecr.io/petstoreapp:latest"
+    #docker_registry_server_url = "https://${var.acr_name}.azurecr.io"
+    }
+```
+
+- aim is to create continous deployment, so when ever our container image is updated it will reflect on the app service
+- if you go on deployment you should see something similiar to the following
+![Deployment Centre App Service](./images/App_service_deployment_slot.png)
+
+## 4.Set up GitHub Repo and Acitons for CI/CD
