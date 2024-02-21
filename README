@@ -177,3 +177,38 @@ docker push <acr name>.azurecr.io/petstoreorderservice:latest
 ![Deployment Centre App Service](./images/App_service_deployment_slot.png)
 
 ## 4.Set up GitHub Repo and Acitons for CI/CD
+
+- create reposiory
+
+``` git
+git init .
+git add .
+git commit -m "first commit"  
+git branch -M main  
+git remote add origin https://github.com/oreakinodidi98/petstore.git
+git push -u origin main  
+```
+
+- create development branch
+
+``` git
+git checkout -b development
+```
+
+### pre-requisite
+
+- create a SP and add to gh secrets  
+- run the following:
+
+```az
+az ad sp create-for-rbac --name "AzurepetstoreOA" --role contributor --scopes /subscriptions/cb5b077c-3ef5-4b2e-83e5-490cc5ca0e19/resourceGroups/rg-petstore-01  --json-auth
+az role assignment create --assignee AzurepetstoreOA --role Contributor --scope /subscriptions/cb5b077c-3ef5-4b2e-83e5-490cc5ca0e19
+az ad sp create-for-rbac --name "AzureResumeOA" --role contributor --scopes /subscriptions/cb5b077c-3ef5-4b2e-83e5-490cc5ca0e19/resourceGroups/rg-staticpage-01  --json-auth
+
+```
+
+- Then save the output in GH as AZURE_CREDENTIALS
+- go to acr and get password
+- create a secret in github called PETSTORECRSECRET -> settings -> secrets & variables-> actions
+- paste acr password in secret
+- az ad sp credential reset --name AzurepetstoreOA --credential-description "TerraformClientSecret"

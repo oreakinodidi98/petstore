@@ -51,7 +51,9 @@ identity {
   linux_profile {
     admin_username = "ubuntu"
     ssh_key {
-      key_data = file(var.ssh_public_key)
+       key_data = data.tls_public_key.ssh_public_key.public_key_openssh
+      #key_data = file(var.ssh_public_key)
+      # key_data = jsondecode(azapi_resource_action.ssh_public_key_gen.output).publicKey
     }
   }
 network_profile {
@@ -59,3 +61,12 @@ network_profile {
     load_balancer_sku = "standard"
 }
  }
+# Generate SSH key pair
+resource "tls_private_key" "ssh_key" {
+  algorithm = "RSA"
+  rsa_bits  = 4096
+}
+# Extract public key from the generated private key
+data "tls_public_key" "ssh_public_key" {
+  private_key_pem = tls_private_key.ssh_key.private_key_pem
+}

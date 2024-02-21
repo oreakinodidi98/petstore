@@ -26,7 +26,7 @@ output "registry_password" {
 output "registry_username" {
   description = "The Username associated with the Container Registry Admin account"
   value       = azurerm_container_registry.acr.admin_username
-  sensitive   = true
+  # sensitive   = true
 }
 #output aks name
 output "aks_name" {
@@ -37,6 +37,11 @@ output "aks_name" {
 output "aks_id" {
     description = "value for aks id"
     value = azurerm_kubernetes_cluster.aks_cluster.id
+}
+#output aks object id
+output "aks_object_id" {
+    description = "value for output of the object ID of the kubelet identity"
+    value = azurerm_kubernetes_cluster.aks_cluster.kubelet_identity[0].object_id
 }
 #output aks fqdn
 output "aks_fqdn" {

@@ -1,0 +1,98 @@
+name: 'Terraform Apply'
+
+on:
+  push:
+      branches:
+          - main
+      paths:
+          - 'Terraform/**'
+  workflow_dispatch:
+
+env:
+    ARM_CLIENT_ID: ${{secrets.ARM_CLIENT_ID}}
+    ARM_CLIENT_SECRET: ${{secrets.ARM_CLIENT_SECRET}}
+    ARM_SUBSCRIPTION_ID: ${{secrets.ARM_SUBSCRIPTION_ID}}
+    ARM_TENANT_ID: ${{secrets.ARM_TENANT_ID}}
+    BACKEND_RESOURCE_GROUP_NAME: ${{secrets.BACKEND_RESOURCE_GROUP_NAME}}
+    BACKEND_STORAGE_ACCOUNT_NAME: ${{secrets.BACKEND_STORAGE_ACCOUNT_NAME}}
+    BACKEND_STORAGE_CONTAINER_NAME: ${{secrets.BACKEND_STORAGE_CONTAINER_NAME}}
+    TF_BACKEND_PATH: ${{secrets.TF_BACKEND_KEY}}
+    AZURE_STORAGE_ACCOUNT_KEY: ${{secrets.AZURE_STORAGE_ACCOUNT_KEY}}
+    WORKING_DIRECTORY: './Terraform'
+    TF_LOG: INFO
+    TF_INPUT: false
+    TF_IN_AUTOMATION: true
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  terraform:
+    name: 'Terraform'
+    runs-on: ubuntu-latest
+    #use bash shell regardless of github actions runner 
+    defaults:
+      run:
+        shell: bash
+    #clone repo to runner machine 
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+    #setup terraform on runner machine
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v1
+      with:
+        terraform_wrapper: false
+    #display the event that triggered the workflow 
+    - name: Display Event
+      run: echo "The ${{ github.event_name }} event was triggered on ${{ github.event.repository.name }} with ${{ github.event.commits[0].id }}"
+    #initialize terraform
+    - name: Terraform Init
+      run: terraform init
+      id: init
+      working-directory: ./Terraform
+    #apply terraform changes
+    - name: Terraform Apply
+      run: terraform apply -auto-approve
+      working-directory: ./Terraform
+# export terraform outputs to file
+    - name: Export Terraform Outputs
+      working-directory: ./Terraform
+      id: tf
+      run: |
+          echo "AZURE_RESOURCE_GROUP=$(terraform output -raw rg_name)" >> petstore_tf_out.txt
+          echo "RG_LOCATION=$(terraform output -raw rg_location)" >> petstore_tf_out.txt
+          echo "AZURE_CONTAINER_REGISTRY=$(terraform output -raw acr_login_server)" >> petstore_tf_out.txt
+          echo "AZURE_CONTAINER_REGISTRY_USERNAME=$(terraform output -raw registry_username)" >> petstore_tf_out.txt
+          echo "AZURE_CONTAINER_NAME=$(terraform output -raw acr_name)" >> petstore_tf_out.txt
+          echo "ACR_LOGING_SERVER=$(terraform output -raw acr_login_server)" >> petstore_tf_out.txt
+          echo "ACR_USERNAME=$(terraform output -raw registry_username)" >> petstore_tf_out.txt
+          echo "AZURE_AKS=$(terraform output -raw aks_name)" >> petstore_tf_out.txt
+          echo "AZURE_DEV_APPSERVICE_ID=$(terraform output -raw dev_app_svc_id)" >> petstore_tf_out.txt
+          echo "AZURE_DEV_APPSERVICE_NAME=$(terraform output -raw dev_app_svc_name)" >> petstore_tf_out.txt
+          echo "LOG_ANALYTIC_NAME=$(terraform output -raw log_analytics_name)" >> petstore_tf_out.txt
+          echo "AZURE_PROD_APPSERVICE_ID=$(terraform output -raw prod_app_svc_id)" >> petstore_tf_out.txt
+          echo "AZURE_PROD_APPSERVICE_NAME=$(terraform output -raw prod_app_svc_name)" >> petstore_tf_out.txt
+          echo "INSTROMENTATION_KEY=$(terraform output -raw instrumentation_key)" >> petstore_tf_out.txt
+          echo "LOG_ANALYTIC_ID=$(terraform output -raw log_analytics_id)" >> petstore_tf_out.txt
+          
+# upload file to artifacts         
+    - name: Upload Terraform Variables
+      uses: actions/upload-artifact@v2
+      with:
+          name: terraform_output_file
+          path: Terraform/petstore_tf_out.txt
+# Logs in with your Azure credentials
+    - name: Azure login
+      uses: azure/login@v1
+      with:
+        client-id: ${{ secrets.ARM_CLIENT_ID }}
+        tenant-id: ${{ secrets.ARM_TENANT_ID }}
+        subscription-id: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+# Upload the file to Azure Blob Storage
+    - name: Upload to Azure Blob Storage
+      uses: azure/CLI@v1
+      with:
+        inlineScript: |
+          az storage blob upload --account-name ${{ secrets.BACKEND_STORAGE_ACCOUNT_NAME }} --account-key ${{ secrets.AZURE_STORAGE_ACCOUNT_KEY }} --name petstore_tf_out.txt --type block --file ${{ github.workspace }}/Terraform/petstore_tf_out.txt --container-name ${{ secrets.BACKEND_STORAGE_CONTAINER_NAME }} --overwrite

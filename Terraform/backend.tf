@@ -6,7 +6,7 @@ terraform {
     }
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "3.82.0"
+      version = "~> 3.82.0"
     }
     azuread = {
       source  = "hashicorp/azuread"
@@ -20,6 +20,11 @@ terraform {
       source  = "hashicorp/kubernetes"
       version = "2.25.2"
     }
+    tls = {
+      source  = "hashicorp/tls"
+      version = "4.0.5"
+    }
+
   }
   #initialise the backend
   backend "azurerm" {
@@ -32,6 +37,6 @@ terraform {
 }
 provider "azurerm" {
   features {
-
   }
+
 }

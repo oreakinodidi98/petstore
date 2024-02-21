@@ -3,7 +3,10 @@ variable "location" {
 variable "resourcegroup" {
 }
 variable "ssh_public_key" {
+  description = "Absolute path to the SSH public key file"
   default = "~/.ssh/id_rsa.pub"
+}
+variable "resourcegroup_id" {
 }
 variable "aks_cluster_name" {
   type = string
