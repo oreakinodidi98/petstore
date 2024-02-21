@@ -4,6 +4,9 @@ data "azuread_client_config" "current" {}
 # create a secret in the keyvault
 data "azurerm_client_config" "current" {}
 #create managed identity
+data "azurerm_service_principal" "current" {
+  display_name = "AzureResumeOA"
+}
 resource "azurerm_user_assigned_identity" "app_assigned" {
   name                = "petstore-identity"
   location            = var.location
@@ -42,21 +45,16 @@ resource "azurerm_role_assignment" "mi_kv_admin" {
   principal_id       = azurerm_user_assigned_identity.app_assigned.principal_id
   role_definition_name = "Key Vault Administrator"
 }
-resource "azurerm_role_assignment" "mi_kv_secrets_user" {
-  scope              = var.key_vault_id
-  principal_id       = azurerm_user_assigned_identity.app_assigned.principal_id
-  role_definition_name = "Key Vault Secrets User"
-}
 resource "azurerm_role_assignment" "az_kv_admin" {
   scope                = var.key_vault_id
   role_definition_name = "Key Vault Secrets Officer"
   principal_id         = data.azurerm_client_config.current.object_id
 }
 
-resource "azurerm_role_assignment" "az_kv_secrets_user" {
+resource "azurerm_role_assignment" "sp_kv_secrets_user" {
   scope                = var.key_vault_id
-  role_definition_name = "Key Vault Secrets User"
-  principal_id         = data.azurerm_client_config.current.object_id
+  role_definition_name = "Key Vault Administrator"
+  principal_id         = data.azurerm_service_principal.current.object_id
 }
 # create fedrated app role assignment at subscription scope with managed identity
 resource "azurerm_federated_identity_credential" "petstore_assigned_identity_dev" {

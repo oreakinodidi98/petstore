@@ -208,3 +208,4 @@ az ad sp create-for-rbac --name "AzurepetstoreOA" --role contributor --scopes /s
 - go to acr and get password
 - create a secret in github called PETSTORECRSECRET -> settings -> secrets & variables-> actions
 - paste acr password in secret
+- az ad sp credential reset --name AzurepetstoreOA --credential-description "TerraformClientSecret"
