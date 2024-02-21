@@ -23,7 +23,7 @@ resource "azurerm_role_assignment" "mi_role_acrpull" {
 }
 resource "azurerm_role_assignment" "mi_role_acrpush" {
   scope                = var.acr_id
-  role_definition_name = "AcrPush"
+  role_definition_name = "Contributor"
   principal_id         = azurerm_user_assigned_identity.app_assigned.principal_id
 }
 # create contributor role assignment at subscription scope with managed identity
@@ -32,15 +32,15 @@ resource "azurerm_role_assignment" "mi_role_acrpush" {
 #   principal_id         = azurerm_user_assigned_identity.app_assigned.principal_id
 #   role_definition_name = "Contributor"
 # }
-resource "azurerm_role_assignment" "mi_kv_admin" {
-  scope              = var.key_vault_id
-  principal_id       = azurerm_user_assigned_identity.app_assigned.principal_id
-  role_definition_name = "Key Vault Administrator"
-}
 resource "azurerm_role_assignment" "website_contributor" {
   scope                = var.resourcegroup_id
   role_definition_name = "Website Contributor"
   principal_id         = azurerm_user_assigned_identity.app_assigned.principal_id
+}
+resource "azurerm_role_assignment" "mi_kv_admin" {
+  scope              = var.key_vault_id
+  principal_id       = azurerm_user_assigned_identity.app_assigned.principal_id
+  role_definition_name = "Key Vault Administrator"
 }
 resource "azurerm_role_assignment" "mi_kv_secrets_user" {
   scope              = var.key_vault_id
@@ -49,7 +49,7 @@ resource "azurerm_role_assignment" "mi_kv_secrets_user" {
 }
 resource "azurerm_role_assignment" "az_kv_admin" {
   scope                = var.key_vault_id
-  role_definition_name = "Key Vault Administrator"
+  role_definition_name = "Key Vault Secrets Officer"
   principal_id         = data.azurerm_client_config.current.object_id
 }
 
