@@ -4,7 +4,7 @@ data "azuread_client_config" "current" {}
 # create a secret in the keyvault
 data "azurerm_client_config" "current" {}
 #create managed identity
-data "azurerm_service_principal" "current" {
+data "azuread_service_principal" "current" {
   display_name = "AzureResumeOA"
 }
 resource "azurerm_user_assigned_identity" "app_assigned" {
