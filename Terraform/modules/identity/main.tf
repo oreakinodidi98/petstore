@@ -27,11 +27,11 @@ resource "azurerm_role_assignment" "mi_role_acrpush" {
   principal_id         = azurerm_user_assigned_identity.app_assigned.principal_id
 }
 # create contributor role assignment at subscription scope with managed identity
-resource "azurerm_role_assignment" "contributor_role_assignment" {
-  scope                = data.azurerm_subscription.current.id
-  principal_id         = azurerm_user_assigned_identity.app_assigned.principal_id
-  role_definition_name = "Contributor"
-}
+# resource "azurerm_role_assignment" "contributor_role_assignment" {
+#   scope                = data.azurerm_subscription.current.id
+#   principal_id         = azurerm_user_assigned_identity.app_assigned.principal_id
+#   role_definition_name = "Contributor"
+# }
 resource "azurerm_role_assignment" "mi_kv_admin" {
   scope              = var.key_vault_id
   principal_id       = azurerm_user_assigned_identity.app_assigned.principal_id
