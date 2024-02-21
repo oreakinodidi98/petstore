@@ -47,6 +47,11 @@ resource "azurerm_role_assignment" "az_kv_admin" {
   role_definition_name = "Key Vault Administrator"
   principal_id         = data.azurerm_client_config.current.object_id
 }
+resource "azurerm_role_assignment" "az_kv_secrets_user" {
+  scope                = var.key_vault_id
+  role_definition_name = "Key Vault Secrets User"
+  principal_id         = data.azurerm_client_config.current.object_id
+}
 # create fedrated app role assignment at subscription scope with managed identity
 resource "azurerm_federated_identity_credential" "petstore_assigned_identity_dev" {
   name                = "dev-petstore-fed-identity"
