@@ -1,7 +1,7 @@
 data "azurerm_subscription" "current" {}
 #data source that is reading the data from client config. using that data in the creation of the managed identity
 data "azuread_client_config" "current" {}
-
+data "azurerm_client_config" "current" {}
 #create managed identity
 resource "azurerm_user_assigned_identity" "app_assigned" {
   name                = "petstore-identity"
@@ -50,3 +50,37 @@ resource "azurerm_federated_identity_credential" "petstore_assigned_identity_mai
   parent_id           = azurerm_user_assigned_identity.app_assigned.id
   subject             = "repo:oreakinodidi98/petstore:ref:refs/heads/main"
 }
+############################################
+#create azure ad group. makes owner the current terraform user
+# resource "azuread_group" "petstore_admins" {
+#   display_name = "${var.naming_prefix}_admins"
+#   description = "petstore-dev"
+#   security_enabled = true
+#   owners = [ data.azurerm_client_config.current.object_id ]
+# }
+# # create members of the group
+# resource "azuread_group_member" "admin_member" {
+#   group_object_id  = azuread_group.petstore_admins.id
+#   member_object_id = data.azuread_user.admin_user.id
+# }
+# data "azuread_user" "admin_user" {
+#   user_principal_name = var.owner_username
+# }
+# output "group_object_id" {
+#   value = azuread_group.petstore_admins.object_id
+# }
+############################################
+# locals {
+#   admin_users = ["oreakinodidi@gmail.com", "admin@MngENVMCAP059812.onmicrosoft.com" ]
+# }
+# data "azuread_user" "admin_user" {
+#   count = length(local.admin_users)
+#   user_principal_name = local.admin_users[count.index]
+# }
+# resource "azuread_group_member" "admin_member" {
+#   count = length(local.admin_users)
+#   group_object_id  = azuread_group.petstore_admins.id
+#   member_object_id = data.azuread_user.admin_user[count.index].id
+# }
+
+#### service principal i am using needs application permission of group.readwrite.all permission and user.read.All permission

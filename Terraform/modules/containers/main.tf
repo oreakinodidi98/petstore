@@ -16,14 +16,15 @@ resource "azurerm_role_assignment" "mi_role_acrpull" {
   role_definition_name = "AcrPull"
   principal_id         = var.managed_identity_principal_id
 }
-resource "azurerm_federated_identity_credential" "workload" {
-  name                = var.managed_identity_name
-  resource_group_name = var.resourcegroup
-  audience            = ["api://AzureADTokenExchange"]
-  issuer              = azurerm_kubernetes_cluster.aks_cluster.oidc_issuer_url
-  parent_id           = var.managed_identity_id
-  subject             = "system:serviceaccount:${var.k8s_namespace}:${var.k8s_service_account_name}"
-}
+# resource "azurerm_federated_identity_credential" "workload" {
+#   name                = var.managed_identity_name
+#   resource_group_name = var.resourcegroup
+#   audience            = ["api://AzureADTokenExchange"]
+#   issuer              = azurerm_kubernetes_cluster.aks_cluster.oidc_issuer_url
+#   parent_id           = var.managed_identity_id
+#   subject             = "system:serviceaccount:${var.k8s_namespace}:${var.k8s_service_account_name}"
+# }
+
 #create acr
 resource "azurerm_container_registry" "acr" {
   name                = var.acr_name
@@ -101,12 +102,12 @@ network_profile {
 }
  }
 # # Generate SSH key pair
-# resource "tls_private_key" "ssh_key" {
-#   algorithm = "RSA"
-#   rsa_bits  = 4096
-# }
+resource "tls_private_key" "ssh_key" {
+  algorithm = "RSA"
+  rsa_bits  = 4096
+#   rsa_bits  = 2048
+ }
 # # Extract public key from the generated private key
 # data "tls_public_key" "ssh_public_key" {
 #   private_key_pem = tls_private_key.ssh_key.private_key_pem
 # }
-

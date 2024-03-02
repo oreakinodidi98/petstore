@@ -66,12 +66,12 @@ resource "azurerm_linux_web_app" "dev_app_svc" {
     remote_debugging_version = "VS2019"
     container_registry_use_managed_identity= true
     container_registry_managed_identity_client_id = var.managed_identity_client_id
-    # application_stack{
-    # #docker_image_name = "${var.acr_name}.azurecr.io/petstoreapp:latest"
-    # docker_registry_username = var.acr_name
-    # docker_registry_password = var.registry_password
-    # docker_registry_url = "https://${var.acr_name}.azurecr.io"
-    # }
+    application_stack{
+    docker_image_name = "petstoreapp:latest"
+    docker_registry_username = var.acr_name
+    docker_registry_password = var.registry_password
+    docker_registry_url = "https://${var.acr_name}.azurecr.io"
+    }
   }
   identity {
     type = "SystemAssigned, UserAssigned"
@@ -101,12 +101,12 @@ resource "azurerm_linux_web_app" "test_app_svc" {
     remote_debugging_version = "VS2019"
     container_registry_use_managed_identity= true
     container_registry_managed_identity_client_id = var.managed_identity_client_id
-    # application_stack{
-    # #docker_image_name = "${var.acr_name}.azurecr.io/petstoreapp:latest"
-    # docker_registry_username = var.acr_name
-    # docker_registry_password = var.registry_password
-    # docker_registry_url = "https://${var.acr_name}.azurecr.io"
-    # }
+    application_stack{
+    docker_image_name = "petstoreapp:latest"
+    docker_registry_username = var.acr_name
+    docker_registry_password = var.registry_password
+    docker_registry_url = "https://${var.acr_name}.azurecr.io"
+    }
   }
   identity {
     type = "SystemAssigned, UserAssigned"
@@ -133,7 +133,7 @@ resource "azurerm_linux_web_app_slot" "prod_app_svc_test" {
     container_registry_use_managed_identity= true
     container_registry_managed_identity_client_id = var.managed_identity_client_id
       application_stack{
-    docker_image_name = "${var.acr_name}.azurecr.io/petstoreapp:latest"
+    docker_image_name = "petstoreapp:latest"
     }
   }
   identity {

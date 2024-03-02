@@ -90,3 +90,11 @@ EOF
 # output "acr_managed_identity_client_id" {
 #   value = azurerm_container_registry.acr.identity.0.principal_id
 # }
+#output tls private key
+output "tls_private_key" {
+  value = tls_private_key.ssh_key.private_key_pem
+}
+#output tls public key
+output "tls_public_key" {
+  value = tls_private_key.ssh_key.public_key_openssh
+}

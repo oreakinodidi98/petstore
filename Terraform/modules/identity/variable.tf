@@ -10,3 +10,6 @@ variable "resourcegroup" {
  }
  variable "key_vault_id" {
  }
+ variable "owner_username" {
+   
+ }

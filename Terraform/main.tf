@@ -19,6 +19,7 @@ module "managed_identity" {
   resourcegroup_id = azurerm_resource_group.resourcegroup.id
   acr_id           = module.containers.acr_id
   key_vault_id     = module.keyvault.key_vault_id
+  owner_username   = var.owner_username
   depends_on       = [azurerm_resource_group.resourcegroup]
 }
 # call the containers module
@@ -48,6 +49,7 @@ module "monitoring" {
   appsvcid                    = module.appservice.prod_app_svc_id
   resourcegroup               = var.resourcegroup
   log_analytics_workspace_sku = var.log_analytics_workspace_sku
+  key_vault_id                = module.keyvault.key_vault_id
   depends_on                  = [azurerm_resource_group.resourcegroup]
 }
 # call the appservice module
@@ -75,25 +77,29 @@ module "keyvault" {
   enabled_for_deployment          = var.enabled_for_deployment
   enabled_for_disk_encryption     = var.enabled_for_disk_encryption
   enabled_for_template_deployment = var.enabled_for_template_deployment
+  name                            = module.containers.registry_username
+  value                           = module.containers.registry_password
+  tls_private_key                 = module.containers.tls_private_key
+  tls_public_key                  = module.containers.tls_public_key
   depends_on                      = [azurerm_resource_group.resourcegroup]
 }
-# # Key Vault Secrets - ACR username & password
-module "kv_secret_docker_password" {
-  source = "./modules/keyvaultsecret"
+# # # Key Vault Secrets - ACR username & password
+# module "kv_secret_docker_password" {
+#   source = "./modules/keyvaultsecret"
 
-  name         = "acr-docker-password"
-  value        = module.containers.registry_password
-  key_vault_id = module.keyvault.key_vault_id
+#   name         = "acr-docker-password"
+#   value        = module.containers.registry_password
+#   key_vault_id = module.keyvault.key_vault_id
 
-  depends_on = [module.keyvault.azurerm_key_vault_access_policy]
-}
+#   depends_on = [module.keyvault.azurerm_key_vault_access_policy]
+# }
 
-module "kv_secret_docker_username" {
-  source = "./modules/keyvaultsecret"
+# module "kv_secret_docker_username" {
+#   source = "./modules/keyvaultsecret"
 
-  name         = "acr-docker-username"
-  value        = module.containers.registry_username
-  key_vault_id = module.keyvault.key_vault_id
+#   name         = "acr-docker-username"
+#   value        = module.containers.registry_username
+#   key_vault_id = module.keyvault.key_vault_id
 
-  depends_on = [module.keyvault.azurerm_key_vault_access_policy]
-}
+#   depends_on = [module.keyvault.azurerm_key_vault_access_policy]
+# }
