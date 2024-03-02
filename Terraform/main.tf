@@ -23,18 +23,21 @@ module "managed_identity" {
 }
 # call the containers module
 module "containers" {
-  source              = "./modules/containers"
-  location            = var.location
-  resourcegroup       = var.resourcegroup
-  aks_cluster_name    = var.aks_cluster_name
-  acr_name            = var.acr_name
-  system_node_count   = var.system_node_count
-  log_analytics_id    = module.monitoring.azurerm_log_analytics_workspace_id
-  vm_sku              = var.vm_sku
-  resourcegroup_id    = azurerm_resource_group.resourcegroup.id
-  min_node_count      = var.min_node_count
-  max_node_count      = var.max_node_count
-  managed_identity_id = module.managed_identity.managed_identity_id
+  source                        = "./modules/containers"
+  location                      = var.location
+  resourcegroup                 = var.resourcegroup
+  aks_cluster_name              = var.aks_cluster_name
+  acr_name                      = var.acr_name
+  system_node_count             = var.system_node_count
+  log_analytics_id              = module.monitoring.azurerm_log_analytics_workspace_id
+  vm_sku                        = var.vm_sku
+  resourcegroup_id              = azurerm_resource_group.resourcegroup.id
+  min_node_count                = var.min_node_count
+  max_node_count                = var.max_node_count
+  managed_identity_name         = module.managed_identity.managed_identity_name
+  managed_identity_id           = module.managed_identity.managed_identity_id
+  managed_identity_principal_id = module.managed_identity.managed_identity_principal_id
+  depends_on                    = [azurerm_resource_group.resourcegroup]
 }
 # call the logs module
 module "monitoring" {
@@ -42,7 +45,7 @@ module "monitoring" {
   env_name                    = var.env_name
   location                    = var.location
   naming_prefix               = var.naming_prefix
-  appsvcid                    = module.appservice.dev_app_svc_id
+  appsvcid                    = module.appservice.prod_app_svc_id
   resourcegroup               = var.resourcegroup
   log_analytics_workspace_sku = var.log_analytics_workspace_sku
   depends_on                  = [azurerm_resource_group.resourcegroup]
@@ -58,6 +61,7 @@ module "appservice" {
   managed_identity_id        = module.managed_identity.managed_identity_id
   managed_identity_client_id = module.managed_identity.managed_identity_client_id
   acr_name                   = var.acr_name
+  registry_password          = module.containers.registry_password
   depends_on                 = [azurerm_resource_group.resourcegroup]
 }
 # call the keyvault module

@@ -17,3 +17,5 @@ variable "managed_identity_id" {
 }
 variable "acr_name" {
 }
+variable "registry_password" {
+}

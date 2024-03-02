@@ -3,6 +3,27 @@ data "azurerm_kubernetes_service_versions" "versions" {
     location = var.location
     include_preview = false
 }
+#create role assignment for acr pull with aks
+resource "azurerm_role_assignment" "aks_mi_role_acrpull" {
+  scope                = azurerm_container_registry.acr.id
+  role_definition_name = "AcrPull"
+  principal_id         = azurerm_kubernetes_cluster.aks_cluster.kubelet_identity[0].object_id
+
+}
+#create role assignment for acr pull with managed identity
+resource "azurerm_role_assignment" "mi_role_acrpull" {
+  scope                = azurerm_container_registry.acr.id
+  role_definition_name = "AcrPull"
+  principal_id         = var.managed_identity_principal_id
+}
+resource "azurerm_federated_identity_credential" "workload" {
+  name                = var.managed_identity_name
+  resource_group_name = var.resourcegroup
+  audience            = ["api://AzureADTokenExchange"]
+  issuer              = azurerm_kubernetes_cluster.aks_cluster.oidc_issuer_url
+  parent_id           = var.managed_identity_id
+  subject             = "system:serviceaccount:${var.k8s_namespace}:${var.k8s_service_account_name}"
+}
 #create acr
 resource "azurerm_container_registry" "acr" {
   name                = var.acr_name
@@ -10,13 +31,6 @@ resource "azurerm_container_registry" "acr" {
   location            = var.location
   sku                 = "Standard"
   admin_enabled       = true
-}
-#create role assignment for acr pull with managed identity
-resource "azurerm_role_assignment" "mi_role_acrpull" {
-  scope                = azurerm_container_registry.acr.id
-  role_definition_name = "AcrPull"
-  principal_id         = azurerm_kubernetes_cluster.aks_cluster.kubelet_identity[0].object_id
-
 }
 # create AKS cluster
 resource "azurerm_kubernetes_cluster" "aks_cluster" {
@@ -73,39 +87,26 @@ identity {
     secret_rotation_enabled  = false
     secret_rotation_interval = "2m"
   }
-  # linux_profile {
-  #   admin_username = "ubuntu"
-  #   ssh_key {
-  #      key_data = data.tls_public_key.ssh_public_key.public_key_openssh
-  #     #key_data = file(var.ssh_public_key)
-  #     # key_data = jsondecode(azapi_resource_action.ssh_public_key_gen.output).publicKey
-  #   }
-  # }
+  linux_profile {
+    admin_username = "ubuntu"
+    ssh_key {
+      key_data = file(var.ssh_public_key)
+      #key_data = data.tls_public_key.ssh_public_key.public_key_openssh
+      # key_data = jsondecode(azapi_resource_action.ssh_public_key_gen.output).publicKey
+    }
+  }
 network_profile {
     network_plugin = "azure"
     load_balancer_sku = "standard"
 }
  }
-# Generate SSH key pair
-resource "tls_private_key" "ssh_key" {
-  algorithm = "RSA"
-  rsa_bits  = 4096
-}
-# Extract public key from the generated private key
-data "tls_public_key" "ssh_public_key" {
-  private_key_pem = tls_private_key.ssh_key.private_key_pem
-}
-#create workload managed identity
-resource "azurerm_user_assigned_identity" "workload" {
-  name                = "petstore_workload_identity"
-  location            = var.location
-  resource_group_name = var.resourcegroup
-}
-resource "azurerm_federated_identity_credential" "workload" {
-  name                = azurerm_user_assigned_identity.workload.name
-  resource_group_name = var.resourcegroup
-  audience            = ["api://AzureADTokenExchange"]
-  issuer              = azurerm_kubernetes_cluster.aks_cluster.oidc_issuer_url
-  parent_id           = azurerm_user_assigned_identity.workload.id
-  subject             = "system:serviceaccount:${var.k8s_namespace}:${var.k8s_service_account_name}"
-}
+# # Generate SSH key pair
+# resource "tls_private_key" "ssh_key" {
+#   algorithm = "RSA"
+#   rsa_bits  = 4096
+# }
+# # Extract public key from the generated private key
+# data "tls_public_key" "ssh_public_key" {
+#   private_key_pem = tls_private_key.ssh_key.private_key_pem
+# }
+

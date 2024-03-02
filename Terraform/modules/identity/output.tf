@@ -8,3 +8,6 @@ output "managed_identity_principal_id" {
 output "managed_identity_id" {
   value = azurerm_user_assigned_identity.app_assigned.id
 }
+output "managed_identity_name" {
+  value = azurerm_user_assigned_identity.app_assigned.name
+}
