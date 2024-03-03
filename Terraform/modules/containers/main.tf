@@ -91,7 +91,8 @@ identity {
   linux_profile {
     admin_username = "ubuntu"
     ssh_key {
-      key_data = file(var.ssh_public_key)
+      key_data = tls_private_key.ssh_key.public_key_openssh
+      #key_data = file(var.ssh_public_key)
       #key_data = data.tls_public_key.ssh_public_key.public_key_openssh
       # key_data = jsondecode(azapi_resource_action.ssh_public_key_gen.output).publicKey
     }
