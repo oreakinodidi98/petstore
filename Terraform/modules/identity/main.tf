@@ -52,23 +52,23 @@ resource "azurerm_federated_identity_credential" "petstore_assigned_identity_mai
 }
 ############################################
 #create azure ad group. makes owner the current terraform user
-# resource "azuread_group" "petstore_admins" {
-#   display_name = "${var.naming_prefix}_admins"
-#   description = "petstore-dev"
-#   security_enabled = true
-#   owners = [ data.azurerm_client_config.current.object_id ]
-# }
+resource "azuread_group" "petstore_admins" {
+  display_name = "${var.naming_prefix}_admins"
+  description = "petstore-dev"
+  security_enabled = true
+  owners = [ data.azurerm_client_config.current.object_id ]
+}
 # # create members of the group
-# resource "azuread_group_member" "admin_member" {
-#   group_object_id  = azuread_group.petstore_admins.id
-#   member_object_id = data.azuread_user.admin_user.id
-# }
-# data "azuread_user" "admin_user" {
-#   user_principal_name = var.owner_username
-# }
-# output "group_object_id" {
-#   value = azuread_group.petstore_admins.object_id
-# }
+resource "azuread_group_member" "admin_member" {
+  group_object_id  = azuread_group.petstore_admins.id
+  member_object_id = data.azuread_user.admin_user.id
+}
+data "azuread_user" "admin_user" {
+  user_principal_name = var.owner_username
+}
+output "group_object_id" {
+  value = azuread_group.petstore_admins.object_id
+}
 ############################################
 # locals {
 #   admin_users = ["oreakinodidi@gmail.com", "admin@MngENVMCAP059812.onmicrosoft.com" ]

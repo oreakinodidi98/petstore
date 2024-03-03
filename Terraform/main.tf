@@ -81,6 +81,7 @@ module "keyvault" {
   value                           = module.containers.registry_password
   tls_private_key                 = module.containers.tls_private_key
   tls_public_key                  = module.containers.tls_public_key
+  group_object_id                 = module.managed_identity.group_object_id
   depends_on                      = [azurerm_resource_group.resourcegroup]
 }
 # # # Key Vault Secrets - ACR username & password
