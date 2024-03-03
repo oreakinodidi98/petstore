@@ -2,6 +2,30 @@ data "azurerm_subscription" "current" {}
 #data source that is reading the data from client config. using that data in the creation of the managed identity
 data "azuread_client_config" "current" {}
 data "azurerm_client_config" "current" {}
+data "azuread_user" "admin_user" {
+  user_principal_name = var.owner_username
+}
+locals {
+        app_owners = [
+        data.azuread_client_config.current.object_id,
+        data.azuread_user.admin_user.object_id
+]
+}
+############################################
+#create azure ad group. makes owner the current terraform user
+resource "azuread_group" "petstore_admins" {
+  display_name = "${var.naming_prefix}_admins"
+  description = "petstore-dev"
+  security_enabled = true
+  owners = [ data.azurerm_client_config.current.object_id ]
+}
+# # create members of the group
+resource "azuread_group_member" "admin_member" {
+  group_object_id  = azuread_group.petstore_admins.id
+  member_object_id = data.azuread_user.admin_user.id
+}
+
+
 #create managed identity
 resource "azurerm_user_assigned_identity" "app_assigned" {
   name                = "petstore-identity"
@@ -27,11 +51,15 @@ resource "azurerm_role_assignment" "website_contributor" {
   principal_id         = azurerm_user_assigned_identity.app_assigned.principal_id
 }
 resource "azurerm_role_assignment" "mi_kv_admin" {
-  scope              = var.key_vault_id
+  scope              = data.azurerm_subscription.current.id
   principal_id       = azurerm_user_assigned_identity.app_assigned.principal_id
   role_definition_name = "Key Vault Administrator"
 }
-
+resource "azurerm_role_assignment" "current_user_kv_admin" {
+  scope                = data.azurerm_subscription.current.id
+  role_definition_name = "Key Vault Administrator"
+  principal_id         = data.azurerm_client_config.current.object_id
+}
 # create fedrated app role assignment at subscription scope with managed identity
 resource "azurerm_federated_identity_credential" "petstore_assigned_identity_dev" {
   name                = "dev-petstore-fed-identity"
@@ -50,25 +78,7 @@ resource "azurerm_federated_identity_credential" "petstore_assigned_identity_mai
   parent_id           = azurerm_user_assigned_identity.app_assigned.id
   subject             = "repo:oreakinodidi98/petstore:ref:refs/heads/main"
 }
-############################################
-#create azure ad group. makes owner the current terraform user
-resource "azuread_group" "petstore_admins" {
-  display_name = "${var.naming_prefix}_admins"
-  description = "petstore-dev"
-  security_enabled = true
-  owners = [ data.azurerm_client_config.current.object_id ]
-}
-# # create members of the group
-resource "azuread_group_member" "admin_member" {
-  group_object_id  = azuread_group.petstore_admins.id
-  member_object_id = data.azuread_user.admin_user.id
-}
-data "azuread_user" "admin_user" {
-  user_principal_name = var.owner_username
-}
-output "group_object_id" {
-  value = azuread_group.petstore_admins.object_id
-}
+
 ############################################
 # locals {
 #   admin_users = ["oreakinodidi@gmail.com", "admin@MngENVMCAP059812.onmicrosoft.com" ]
