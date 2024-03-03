@@ -87,7 +87,7 @@ resource "azurerm_storage_account" "pet_storage" {
   account_tier             = "Standard"
   account_replication_type = "LRS"
 }
-resource "azurerm_monitor_diagnostic_setting" "diagnostic_settings" {
+resource "azurerm_monitor_diagnostic_setting" "kv_diagnostic_settings" {
   name               = "${var.naming_prefix}-diagnostic-settings"
   target_resource_id = var.key_vault_id
   storage_account_id = azurerm_storage_account.pet_storage.id
@@ -102,14 +102,14 @@ resource "azurerm_monitor_diagnostic_setting" "diagnostic_settings" {
       enabled = true
     }
   }
-  enabled_log {
-    #category = "AuditEvent"
-    category_group = "allLogs"
+  # enabled_log {
+  #   #category = "AuditEvent"
+  #   category_group = "allLogs"
 
-    retention_policy {
-      enabled = true
-    }
-  }
+  #   retention_policy {
+  #     enabled = true
+  #   }
+  # }
   enabled_log {
     category = "AzurePolicyEvaluationDetails"
 

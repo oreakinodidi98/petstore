@@ -2,6 +2,7 @@ data "azurerm_subscription" "current" {}
 #data source that is reading the data from client config. using that data in the creation of the managed identity
 data "azuread_client_config" "current" {}
 data "azurerm_client_config" "current" {}
+
 # data "azuread_user" "admin_user" {
 #   user_principal_name = var.owner_username
 # }
@@ -54,18 +55,12 @@ resource "azurerm_role_assignment" "mi_kv_admin" {
   principal_id       = azurerm_user_assigned_identity.app_assigned.principal_id
   role_definition_name = "Key Vault Administrator"
 }
-# create key vault administrator role assignment at subscription scope with current user
-resource "azurerm_role_assignment" "current_user_kv_admin" {
-  scope                = data.azurerm_subscription.current.id
-  role_definition_name = "Key Vault Administrator"
-  principal_id         = data.azurerm_client_config.current.object_id
-}
 # create key vault administrator role assignment at subscription scope with current user active directory
-resource "azurerm_role_assignment" "current" {
-  scope                = data.azurerm_subscription.current.id
-  role_definition_name = "Key Vault Administrator"
-  principal_id         = data.azuread_client_config.current.object_id
-}
+# resource "azurerm_role_assignment" "current" {
+#   scope                = data.azurerm_subscription.current.id
+#   role_definition_name = "Key Vault Administrator"
+#   principal_id         = data.azuread_client_config.current.object_id
+# }
 # create fedrated app role assignment at subscription scope with managed identity
 resource "azurerm_federated_identity_credential" "petstore_assigned_identity_dev" {
   name                = "dev-petstore-fed-identity"

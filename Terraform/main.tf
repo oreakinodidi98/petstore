@@ -18,9 +18,9 @@ module "managed_identity" {
   resourcegroup    = var.resourcegroup
   resourcegroup_id = azurerm_resource_group.resourcegroup.id
   acr_id           = module.containers.acr_id
-  key_vault_id     = module.keyvault.key_vault_id
-  owner_username   = var.owner_username
-  depends_on       = [azurerm_resource_group.resourcegroup]
+  #key_vault_id     = module.keyvault.key_vault_id
+  owner_username = var.owner_username
+  depends_on     = [azurerm_resource_group.resourcegroup]
 }
 # call the containers module
 module "containers" {
@@ -82,7 +82,7 @@ module "keyvault" {
   tls_private_key                 = module.containers.tls_private_key
   tls_public_key                  = module.containers.tls_public_key
   #group_object_id                 = module.managed_identity.group_object_id
-  depends_on = [azurerm_resource_group.resourcegroup]
+  depends_on = [azurerm_resource_group.resourcegroup, module.containers, module.managed_identity]
 }
 # # # Key Vault Secrets - ACR username & password
 # module "kv_secret_docker_password" {
