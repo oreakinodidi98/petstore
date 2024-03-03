@@ -11,6 +11,6 @@ output "managed_identity_id" {
 output "managed_identity_name" {
   value = azurerm_user_assigned_identity.app_assigned.name
 }
-output "group_object_id" {
-  value = azuread_group.petstore_admins.object_id
-}
+# output "group_object_id" {
+#   value = azuread_group.petstore_admins.object_id
+# }

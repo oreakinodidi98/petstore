@@ -31,7 +31,7 @@ resource "azurerm_key_vault_access_policy" "Keyvault_terraform_user" {
 resource "azurerm_key_vault_access_policy" "petstore_terraform_subscribtion_kv" {
   key_vault_id = azurerm_key_vault.kv.id
   tenant_id    = data.azurerm_client_config.current.tenant_id
-  object_id    = var.group_object_id
+  object_id    = data.azurerm_client_config.current.object_id
 
   lifecycle {
     create_before_destroy = true
@@ -41,8 +41,7 @@ resource "azurerm_key_vault_access_policy" "petstore_terraform_subscribtion_kv" 
   secret_permissions = ["Get", "List", "Set", "Delete", "Recover", "Backup", "Restore", "Purge"]
   storage_permissions = [ "Get" ]
 }
-variable "group_object_id" {
-  }
+
 resource "azurerm_role_assignment" "terraform_keyvault_access" {
   scope                = azurerm_key_vault.kv.id
   role_definition_name = "Key Vault Administrator"

@@ -37,6 +37,8 @@ variable "tls_private_key" {
 }
 variable "tls_public_key" {
 }
+# variable "group_object_id" {
+#   }
 # variable "kv-key-permissions-full" {
 #   type        = list(string)
 #   description = "List of full key permissions, must be one or more from the following: backup, create, decrypt, delete, encrypt, get, import, list, purge, recover, restore, sign, unwrapKey, update, verify and wrapKey."

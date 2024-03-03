@@ -96,6 +96,15 @@ resource "azurerm_monitor_diagnostic_setting" "diagnostic_settings" {
 
   enabled_log {
     category = "AuditEvent"
+    #category_group = "audit"
+
+    retention_policy {
+      enabled = true
+    }
+  }
+  enabled_log {
+    #category = "AuditEvent"
+    category_group = "allLogs"
 
     retention_policy {
       enabled = true
