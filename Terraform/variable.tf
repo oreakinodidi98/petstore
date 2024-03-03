@@ -59,7 +59,8 @@ variable "vm_sku" {
   type        = string
   default     = "Standard_D2as_v5"
   #default     = "Standard_DS2_v2"
-} ##################################### logs variables ########################
+}
+##################################### logs variables ########################
 #log analytics variables
 variable "env_name" {
   description = "Name of Environment"

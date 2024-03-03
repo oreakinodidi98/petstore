@@ -23,6 +23,22 @@ variable "enabled_for_disk_encryption" {
 variable "enabled_for_template_deployment" {
     type = string
 }
+variable "name" {
+  type        = string
+  description = "Name of secret key"
+}
+
+variable "value" {
+  type        = string
+  description = "Value of the secret key in key vault"
+  sensitive   = true
+}
+variable "tls_private_key" {
+}
+variable "tls_public_key" {
+}
+# variable "group_object_id" {
+#   }
 # variable "kv-key-permissions-full" {
 #   type        = list(string)
 #   description = "List of full key permissions, must be one or more from the following: backup, create, decrypt, delete, encrypt, get, import, list, purge, recover, restore, sign, unwrapKey, update, verify and wrapKey."

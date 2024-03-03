@@ -32,6 +32,10 @@ variable "vm_sku" {
 }
 variable "managed_identity_id" {
 }
+variable "managed_identity_principal_id" {
+}
+variable "managed_identity_name" {
+}
 variable "admin_groups" {
   type = list(string)
   default = [ "21b860b5-43ea-42ca-bec8-68793176c3c5" ]

@@ -6,6 +6,10 @@ output "key_vault_id" {
 output "key_vault_name" {
   description = "Key Vault Name"
   value       = azurerm_key_vault.kv.name
-#   sensitive   = true
+}
+output "value" {
+  value       = var.value
+  description = "Secret value."
+   sensitive   = true
 }
 

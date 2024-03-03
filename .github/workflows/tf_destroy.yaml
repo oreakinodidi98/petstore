@@ -1,0 +1,59 @@
+name: 'Terraform Destroy'
+
+on:
+  workflow_dispatch:
+permissions:
+    contents: read
+    id-token: write
+jobs:
+  terraform:
+    name: 'Terraform'
+    runs-on: ubuntu-latest
+    
+
+    env:
+        ARM_CLIENT_ID: ${{secrets.ARM_CLIENT_ID}}
+        ARM_CLIENT_SECRET: ${{secrets.ARM_CLIENT_SECRET}}
+        ARM_SUBSCRIPTION_ID: ${{secrets.ARM_SUBSCRIPTION_ID}}
+        ARM_TENANT_ID: ${{secrets.ARM_TENANT_ID}}
+        BACKEND_RESOURCE_GROUP_NAME: ${{secrets.BACKEND_RESOURCE_GROUP_NAME}}
+        BACKEND_STORAGE_ACCOUNT_NAME: ${{secrets.BACKEND_STORAGE_ACCOUNT_NAME}}
+        BACKEND_STORAGE_CONTAINER_NAME: ${{secrets.BACKEND_STORAGE_CONTAINER_NAME}}
+        TF_BACKEND_PATH: ${{secrets.TF_BACKEND_KEY}}
+        AZURE_STORAGE_ACCOUNT_KEY: ${{secrets.AZURE_STORAGE_ACCOUNT_KEY}}
+        WORKING_DIRECTORY: './Terraform'
+        TF_LOG: INFO
+        TF_INPUT: false
+        TF_IN_AUTOMATION: true
+
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+# setup terraform on runner machine
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v1
+      with:
+        terraform_wrapper: false
+
+    - name: Terraform Init
+      run: terraform init
+      working-directory: ./Terraform
+
+    - name: Terraform Destroy
+      run: terraform destroy -auto-approve
+      working-directory: ./Terraform
+# Logs in with your Azure credentials
+    - name: Azure login
+      uses: azure/login@v1
+      with:
+        client-id: ${{ secrets.ARM_CLIENT_ID }}
+        tenant-id: ${{ secrets.ARM_TENANT_ID }}
+        subscription-id: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+# Destroys the file in Azure Blob Storage
+    - name: Delete file from Azure Blob Storage
+      uses: azure/CLI@v1
+      with:
+        inlineScript: |
+          az storage blob delete --account-name ${{ secrets.BACKEND_STORAGE_ACCOUNT_NAME }} --account-key ${{ secrets.AZURE_STORAGE_ACCOUNT_KEY }} --name petstore_tf_out.txt --container-name ${{ secrets.BACKEND_STORAGE_CONTAINER_NAME }}

@@ -93,15 +93,9 @@ output "key_vault_id" {
 }
 output "key_vault_name" {
   value = module.keyvault.key_vault_name
-  # sensitive = true
 }
-
+output "secret_docker_password" {
+  value     = module.keyvault.value
+  sensitive = true
+}
 ########################## output for keyvault secret ##############################
-# output "secret_docker_password" {
-#   value     = module.kv_secret_docker_password.value
-#   sensitive = true
-# }
-# output "secret_docker_username" {
-#   value     = module.kv_secret_docker_username.value
-#   sensitive = true
-# }
