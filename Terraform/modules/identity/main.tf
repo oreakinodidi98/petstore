@@ -25,22 +25,18 @@ data "azurerm_client_config" "current" {}
 #   group_object_id  = azuread_group.petstore_admins.id
 #   member_object_id = data.azuread_user.admin_user.id
 # }
+# create key vault administrator role assignment at subscription scope with current user active directory
+resource "azurerm_role_assignment" "current" {
+  scope                = data.azurerm_subscription.current.id
+  role_definition_name = "Key Vault Administrator"
+  principal_id         = data.azuread_client_config.current.object_id
+}
 #create managed identity
 resource "azurerm_user_assigned_identity" "app_assigned" {
   name                = "petstore-identity"
   location            = var.location
   resource_group_name = var.resourcegroup
 }
-# resource "azurerm_role_assignment" "mi_roledefinition_role_assignment" {
-#   scope              = data.azurerm_subscription.current.id
-#   role_definition_id = "/providers/Microsoft.Authorization/roleDefinitions/Microsoft.Authorization/roleAssignments/write"
-#   principal_id       = azurerm_user_assigned_identity.app_assigned.principal_id
-# }
-# resource "azurerm_role_assignment" "roledefinition_role_assignment" {
-#   scope              = data.azurerm_subscription.current.id
-#   role_definition_id = "/providers/Microsoft.Authorization/roleDefinitions/Microsoft.Authorization/roleAssignments/write"
-#   principal_id       = data.azurerm_client_config.current.object_id
-# }
 #create role assighnment at RG scope with managed identity
 resource "azurerm_role_assignment" "role_rg" {
   scope                = var.resourcegroup_id
@@ -65,12 +61,6 @@ resource "azurerm_role_assignment" "mi_kv_admin" {
   principal_id       = azurerm_user_assigned_identity.app_assigned.principal_id
   role_definition_name = "Key Vault Administrator"
 }
-# create key vault administrator role assignment at subscription scope with current user active directory
-# resource "azurerm_role_assignment" "current" {
-#   scope                = data.azurerm_subscription.current.id
-#   role_definition_name = "Key Vault Administrator"
-#   principal_id         = data.azuread_client_config.current.object_id
-# }
 # create fedrated app role assignment at subscription scope with managed identity
 resource "azurerm_federated_identity_credential" "petstore_assigned_identity_dev" {
   name                = "dev-petstore-fed-identity"
@@ -89,7 +79,6 @@ resource "azurerm_federated_identity_credential" "petstore_assigned_identity_mai
   parent_id           = azurerm_user_assigned_identity.app_assigned.id
   subject             = "repo:oreakinodidi98/petstore:ref:refs/heads/main"
 }
-
 ############################################
 # locals {
 #   admin_users = ["oreakinodidi@gmail.com", "admin@MngENVMCAP059812.onmicrosoft.com" ]
