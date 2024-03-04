@@ -56,4 +56,6 @@ jobs:
       uses: azure/CLI@v1
       with:
         inlineScript: |
-          az storage blob delete --account-name ${{ secrets.BACKEND_STORAGE_ACCOUNT_NAME }} --account-key ${{ secrets.AZURE_STORAGE_ACCOUNT_KEY }} --name petstore_tf_out.txt --container-name ${{ secrets.BACKEND_STORAGE_CONTAINER_NAME }}
+          if az storage blob exists --account-name ${{ secrets.BACKEND_STORAGE_ACCOUNT_NAME }} --account-key ${{ secrets.AZURE_STORAGE_ACCOUNT_KEY }} --name petstore_tf_out.txt --container-name ${{ secrets.BACKEND_STORAGE_CONTAINER_NAME }} --output tsv | grep -q true; then
+            az storage blob delete --account-name ${{ secrets.BACKEND_STORAGE_ACCOUNT_NAME }} --account-key ${{ secrets.AZURE_STORAGE_ACCOUNT_KEY }} --name petstore_tf_out.txt --container-name ${{ secrets.BACKEND_STORAGE_CONTAINER_NAME }}
+          fi
