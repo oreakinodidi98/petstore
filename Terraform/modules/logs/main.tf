@@ -87,38 +87,38 @@ resource "azurerm_storage_account" "pet_storage" {
   account_tier             = "Standard"
   account_replication_type = "LRS"
 }
-resource "azurerm_monitor_diagnostic_setting" "kv_diagnostic_settings" {
-  name               = "${random_pet.prefix.id}-diagnostic-settings"
-  target_resource_id = var.key_vault_id
-  storage_account_id = azurerm_storage_account.pet_storage.id
-  log_analytics_workspace_id = azurerm_log_analytics_workspace.aks.id
-  log_analytics_destination_type = "Dedicated"
+# resource "azurerm_monitor_diagnostic_setting" "kv_diagnostic_settings" {
+#   name               = "${random_pet.prefix.id}-diagnostic-settings"
+#   target_resource_id = var.key_vault_id
+#   storage_account_id = azurerm_storage_account.pet_storage.id
+#   log_analytics_workspace_id = azurerm_log_analytics_workspace.aks.id
+#   log_analytics_destination_type = "Dedicated"
 
-  enabled_log {
-    category = "AuditEvent"
-    #category_group = "audit"
+#   enabled_log {
+#     category = "AuditEvent"
+#     #category_group = "audit"
 
-    retention_policy {
-      enabled = true
-    }
-  }
+#     retention_policy {
+#       enabled = true
+#     }
+#   }
 
-  enabled_log {
-    category = "AzurePolicyEvaluationDetails"
+#   enabled_log {
+#     category = "AzurePolicyEvaluationDetails"
 
-    retention_policy {
-      enabled = true
-    }
-  }
+#     retention_policy {
+#       enabled = true
+#     }
+#   }
 
-  metric {
-    category = "AllMetrics"
+#   metric {
+#     category = "AllMetrics"
 
-    retention_policy {
-      enabled = true
-    }
-  }
-}
+#     retention_policy {
+#       enabled = true
+#     }
+#   }
+# }
 resource "random_pet" "prefix" {
   prefix = var.naming_prefix
   length = 1
