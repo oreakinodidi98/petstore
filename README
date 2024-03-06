@@ -216,4 +216,65 @@ az ad sp create-for-rbac --name "AzureResumeOA" --role contributor --scopes /sub
 ## 5. Create an Azure Kubernetes Cluster and configure NGINX Ingress Controller
 
 - login to Azure
-- 
+
+```kubectl
+helm install ingress-nginx ingress-nginx/ingress-nginx \
+  --create-namespace \
+  --namespace ingress-petstoreservices \
+  --set controller.service.annotations."service\.beta\.kubernetes\.io/azure-load-balancer-health-probe-request-path"=/healthz
+```
+
+ ```cli
+   $RESOURCE_GROUP = "rg-petstore-01"
+$ACR_URL = "oapetacr.azurecr.io"
+$REGISTRY_NAME = "oapetacr"
+$SOURCE_REGISTRY = "k8s.gcr.io"
+$CONTROLLER_IMAGE = "ingress-nginx/controller"
+$CONTROLLER_TAG = "v1.0.4"
+$PATCH_IMAGE = "ingress-nginx/kube-webhook-certgen"
+$PATCH_TAG = "v1.1.1"
+$DEFAULTBACKEND_IMAGE = "defaultbackend-amd64"
+$DEFAULTBACKEND_TAG = "1.5"
+ $NAMESPACE= "ingress-petstoreservices"
+   ```
+
+   Import the Ingress controller and required images into your ACR (Helm will use them on the install below)
+
+   `az acr import --resource-group=rg-petstore-01 --name oapetacr --source k8s.gcr.io/ingress-nginx/controller:v1.0.4 --image ingress-nginx/controller:v1.0.4`
+
+   `az acr import --resource-group=rg-petstore-01 --name oapetacr --source k8s.gcr.io/ingress-nginx/kube-webhook-certgen:v1.1.1 --image ingress-nginx/kube-webhook-certgen:v1.1.1`
+
+   `az acr import --resource-group=rg-petstore-01 --name oapetacr --source k8s.gcr.io/defaultbackend-amd64:1.5 --image defaultbackend-amd64:1.5`
+
+   Instruct Helm to install and configure the Ingress controller with the images
+
+   ```cli
+   helm install ingress-nginx ingress-nginx/ingress-nginx 
+   --namespace $NAMESPACE --create-namespace 
+   --set controller.replicaCount=2 
+   --set controller.nodeSelector."kubernetes\.io/os"=linux 
+   --set controller.image.registry=$ACR_URL 
+   --set controller.image.image=$CONTROLLER_IMAGE 
+   --set controller.image.tag=$CONTROLLER_TAG 
+   --set controller.image.digest="" 
+   --set controller.admissionWebhooks.patch.nodeSelector."kubernetes\.io/os"=linux 
+   --set controller.admissionWebhooks.patch.image.registry=$ACR_URL 
+   --set controller.admissionWebhooks.patch.image.image=$PATCH_IMAGE 
+   --set controller.admissionWebhooks.patch.image.tag=$PATCH_TAG 
+   --set controller.admissionWebhooks.patch.image.digest="" 
+   --set defaultBackend.nodeSelector."kubernetes\.io/os"=linux 
+   --set defaultBackend.image.registry=$ACR_URL 
+   --set defaultBackend.image.image=$DEFAULTBACKEND_IMAGE 
+   --set defaultBackend.image.tag=$DEFAULTBACKEND_TAG 
+   --set defaultBackend.image.digest=""
+   ```
+
+   ```cli
+helm install ingress-nginx ingress-nginx/ingress-nginx    --namespace $NAMESPACE --create-namespace    --set controller.replicaCount=2    --set controller.nodeSelector."kubernetes\.io/os"=linux    --set controller.image.registry=$ACR_URL    --set controller.image.image=$CONTROLLER_IMAGE    --set controller.image.tag=$CONTROLLER_TAG    --set controller.image.digest=""    --set controller.admissionWebhooks.patch.nodeSelector."kubernetes\.io/os"=linux    --set controller.admissionWebhooks.patch.image.registry=$ACR_URL    --set controller.admissionWebhooks.patch.image.image=$PATCH_IMAGE    --set controller.admissionWebhooks.patch.image.tag=$PATCH_TAG    --set controller.admissionWebhooks.patch.image.digest=""    --set defaultBackend.nodeSelector."kubernetes\.io/os"=linux    --set defaultBackend.image.registry=$ACR_URL    --set defaultBackend.image.image=$DEFAULTBACKEND_IMAGE    --set defaultBackend.image.tag=$DEFAULTBACKEND_TAG    --set defaultBackend.image.digest=""
+   ```
+
+ Verify it is up and running
+
+   `kubectl --namespace $NAMESPACE get services -o wide -w ingress-nginx-controller`
+
+az aks update -n oa-pet-aks -g rg-petstore-01 --attach-acr oapetacr

@@ -55,7 +55,6 @@ resource "azurerm_linux_web_app" "dev_app_svc" {
       "SCM_DO_BUILD_DURING_DEPLOYMENT" = true
       "WEBSITES_ENABLE_APP_SERVICE_STORAGE" = "false"
       "DOCKER_ENABLE_CI" = "true"
-      #"WEBSITE_HTTPLOGGING_RETENTION_DAYS" = 3
       "DOCKER_REGISTRY_SERVER_USERNAME" = var.acr_name
       "DOCKER_REGISTRY_SERVER_URL" = "https://${var.acr_name}.azurecr.io"
       "DOCKER_REGISTRY_SERVER_PASSWORD" = var.registry_password
@@ -90,7 +89,6 @@ resource "azurerm_linux_web_app" "test_app_svc" {
       "SCM_DO_BUILD_DURING_DEPLOYMENT" = true
       "WEBSITES_ENABLE_APP_SERVICE_STORAGE" = "false"
        "DOCKER_ENABLE_CI" = "true"
-    # "WEBSITE_HTTPLOGGING_RETENTION_DAYS" = 3
       "DOCKER_REGISTRY_SERVER_USERNAME" = var.acr_name
       "DOCKER_REGISTRY_SERVER_URL" = "https://${var.acr_name}.azurecr.io"
       "DOCKER_REGISTRY_SERVER_PASSWORD" = var.registry_password
@@ -121,7 +119,6 @@ resource "azurerm_linux_web_app_slot" "prod_app_svc_test" {
       "WEBSITE_RUN_FROM_PACKAGE" = 1
       "WEBSITE_ENABLE_SYNC_UPDATE_SITE" = true 
       "SCM_DO_BUILD_DURING_DEPLOYMENT" = true
-      #"WEBSITE_HTTPLOGGING_RETENTION_DAYS" = 3
       "DOCKER_REGISTRY_SERVER_URL" = "https://${var.acr_name}.azurecr.io"
       "DOCKER_ENABLE_CI" = "true"
       }

@@ -83,7 +83,7 @@ module "keyvault" {
   value                           = module.containers.registry_password
   tls_private_key                 = module.containers.tls_private_key
   tls_public_key                  = module.containers.tls_public_key
-  depends_on                      = [azurerm_resource_group.resourcegroup, module.containers]
+  depends_on                      = [azurerm_resource_group.resourcegroup]
 }
 # # # Key Vault Secrets - ACR username & password
 # module "kv_secret_docker_password" {
