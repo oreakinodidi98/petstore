@@ -4,11 +4,12 @@ data "azurerm_kubernetes_service_versions" "versions" {
     include_preview = false
 }
 #create role assignment for acr pull with aks
-resource "azurerm_role_assignment" "aks_mi_role_acrpull" {
-  scope                = azurerm_container_registry.acr.id
-  role_definition_name = "AcrPull"
-  principal_id         = azurerm_kubernetes_cluster.aks_cluster.identity[0].principal_id
-}
+# resource "azurerm_role_assignment" "aks_mi_role_acrpull" {
+#   scope                = azurerm_container_registry.acr.id
+#   role_definition_name = "AcrPull"
+#   principal_id         = azurerm_kubernetes_cluster.aks_cluster.identity[0].principal_id
+#   depends_on = [azurerm_kubernetes_cluster.aks_cluster]
+# }
 #create role assignment for acr pull with managed identity
 resource "azurerm_role_assignment" "mi_role_acrpull" {
   scope                = azurerm_container_registry.acr.id
