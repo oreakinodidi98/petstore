@@ -3,17 +3,9 @@ data "azurerm_kubernetes_service_versions" "versions" {
     location = var.location
     include_preview = false
 }
-#create role assignment for acr pull with aks
-# resource "azurerm_role_assignment" "aks_mi_role_acrpull" {
-#   scope                = azurerm_container_registry.acr.id
-#   role_definition_name = "AcrPull"
-#   principal_id         = azurerm_kubernetes_cluster.aks_cluster.identity[0].principal_id
-#   depends_on = [azurerm_kubernetes_cluster.aks_cluster]
-# }
-#create role assignment for acr pull with managed identity
-resource "azurerm_role_assignment" "mi_role_acrpull" {
-  scope                = azurerm_container_registry.acr.id
-  role_definition_name = "AcrPull"
+resource "azurerm_role_assignment" "aks_role_assighment" {
+  scope                = azurerm_kubernetes_cluster.aks_cluster.id
+  role_definition_name = "Azure Kubernetes Service Cluster User Role"
   principal_id         = var.managed_identity_principal_id
 }
 #create acr
@@ -53,12 +45,6 @@ identity {
     type = "UserAssigned"
     identity_ids = [var.managed_identity_id]  
 }
-  # # allows Entra ID groups to be cluster administrators
-  # azure_active_directory_role_based_access_control {
-  #   managed                = true
-  #   admin_group_object_ids = var.admin_groups
-  #   azure_rbac_enabled     = true
-  # }
  # observability
   microsoft_defender {
     log_analytics_workspace_id = var.log_analytics_id
@@ -89,7 +75,7 @@ network_profile {
     load_balancer_sku = "standard"
 }
  }
-# # Generate SSH key pair
+## Generate SSH key pair
 resource "tls_private_key" "ssh_key" {
   algorithm = "RSA"
   rsa_bits  = 4096
