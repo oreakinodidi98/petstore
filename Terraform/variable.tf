@@ -29,6 +29,10 @@ variable "owner_username" {
   type        = string
   default     = "oreakinodidi_microsoft.com#EXT#@fdpo.onmicrosoft.com"
 }
+variable "service_principal_name" {
+  type    = string
+  default = "sp-petstore-oa"
+}
 ##################################### container Variables ########################
 #AKS variables
 variable "aks_cluster_name" {
