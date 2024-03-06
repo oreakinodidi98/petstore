@@ -39,7 +39,8 @@ resource "azurerm_key_vault_access_policy" "petstore_terraform_subscribtion_kv" 
 
   key_permissions = ["Get", "List", "Update", "Create", "Import", "Delete", "Recover", "Backup", "Restore", "Decrypt", "Encrypt", "UnwrapKey", "WrapKey", "Verify", "Sign", "Purge", "Release", "Rotate", "GetRotationPolicy", "SetRotationPolicy"]
   secret_permissions = ["Get", "List", "Set", "Delete", "Recover", "Backup", "Restore", "Purge"]
-  storage_permissions = [ "Get" ]
+  storage_permissions = [ "Get", "List", "set", "Delete" ]
+  certificate_permissions = [ "Create", "Get", "List", "Delete", "Import", "Update"]
 }
 
 # resource "azurerm_role_assignment" "terraform_keyvault_access" {
