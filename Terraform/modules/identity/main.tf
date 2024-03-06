@@ -56,11 +56,11 @@ resource "azurerm_role_assignment" "website_contributor" {
   principal_id         = azurerm_user_assigned_identity.app_assigned.principal_id
 }
 # create key vault administrator role assignment at subscription scope with managed identity
-# resource "azurerm_role_assignment" "mi_kv_admin" {
-#   scope              = data.azurerm_subscription.current.id
-#   principal_id       = azurerm_user_assigned_identity.app_assigned.principal_id
-#   role_definition_name = "Key Vault Administrator"
-# }
+resource "azurerm_role_assignment" "mi_kv_admin" {
+  scope              = var.key_vault_id
+  principal_id       = azurerm_user_assigned_identity.app_assigned.principal_id
+  role_definition_name = "Key Vault Administrator"
+}
 # create fedrated app role assignment at subscription scope with managed identity
 resource "azurerm_federated_identity_credential" "petstore_assigned_identity_dev" {
   name                = "dev-petstore-fed-identity"
