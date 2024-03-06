@@ -212,3 +212,8 @@ az ad sp create-for-rbac --name "AzureResumeOA" --role contributor --scopes /sub
 - create a secret in github called PETSTORECRSECRET -> settings -> secrets & variables-> actions
 - paste acr password in secret
 - az ad sp credential reset --name AzurepetstoreOA --credential-description "TerraformClientSecret"
+
+## 5. Create an Azure Kubernetes Cluster and configure NGINX Ingress Controller
+
+- login to Azure
+- 
