@@ -13,15 +13,16 @@ resource "azurerm_resource_group" "resourcegroup" {
 }
 # call the managed identity module
 module "managed_identity" {
-  source           = "./modules/identity"
-  location         = var.location
-  naming_prefix    = var.naming_prefix
-  resourcegroup    = var.resourcegroup
-  resourcegroup_id = azurerm_resource_group.resourcegroup.id
-  acr_id           = module.containers.acr_id
-  key_vault_id     = module.keyvault.key_vault_id
-  aks_id           = module.containers.aks_id
-  depends_on       = [azurerm_resource_group.resourcegroup]
+  source                    = "./modules/identity"
+  location                  = var.location
+  naming_prefix             = var.naming_prefix
+  resourcegroup             = var.resourcegroup
+  resourcegroup_id          = azurerm_resource_group.resourcegroup.id
+  acr_id                    = module.containers.acr_id
+  key_vault_id              = module.keyvault.key_vault_id
+  aks_id                    = module.containers.aks_id
+  prod_app_svc_principal_id = module.appservice.prod_app_svc_principal_id
+  depends_on                = [azurerm_resource_group.resourcegroup]
 }
 # call the containers module
 module "containers" {

@@ -49,6 +49,12 @@ resource "azurerm_role_assignment" "current" {
   role_definition_name = "Key Vault Administrator"
   principal_id         = data.azuread_client_config.current.object_id
 }
+# Pull access for the app service
+resource "azurerm_role_assignment" "prod_app_service_acr_pull" {
+  scope                = var.acr_id
+  role_definition_name = "AcrPull"
+  principal_id         = var.prod_app_svc_principal_id
+}
 resource "azurerm_role_assignment" "storage_blob_data_contributor" {
   scope                = var.resourcegroup_id
   role_definition_name = "Storage Blob Data Contributor"

@@ -13,7 +13,5 @@ variable "resourcegroup" {
 variable "aks_id" {
    description = "the AKS Id"
 }
-# variable "owner_username" {
-#   description = "The username of the owner of the AKS cluster"
-#   type        = string
-# }
+variable "prod_app_svc_principal_id" {
+}
