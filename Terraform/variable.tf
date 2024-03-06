@@ -29,6 +29,7 @@ variable "owner_username" {
   type        = string
   #default     = "oreakinodidi_microsoft.com#EXT#@fdpo.onmicrosoft.com"
   default = "oreakinodidi@microsoft.com"
+  # xxxx_microsoft.com#EXT#@AzureSDKTeam.onmicrosoft.com
 }
 variable "service_principal_name" {
   type    = string
