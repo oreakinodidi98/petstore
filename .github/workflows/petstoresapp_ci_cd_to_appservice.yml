@@ -37,7 +37,7 @@ jobs:
           key=$(echo $line | cut -d = -f 1)
           value=$(echo $line | cut -d = -f 2-)
           echo "$key=$value" >> $GITHUB_ENV
-        done < static_tf_out.txt
+        done < petstore_tf_out.txt
     - uses: actions/checkout@v2
     - name: Checking the file system listing for Pet Store App
       run: |
