@@ -77,4 +77,13 @@ jobs:
         docker build src/petstoreapp -t ${{env.ACR_LOGING_SERVER}}/petstoreapp:latest -t ${{ env.ACR_LOGING_SERVER }}/petstoreapp:${{ github.sha }}
         docker push ${{ env.ACR_LOGING_SERVER }}/petstoreapp:${{ github.sha }}
         docker push  ${{ env.ACR_LOGING_SERVER }}/petstoreapp:latest
+        docker build src/petstoreorderservice -t ${{env.ACR_LOGING_SERVER}}/petstoreorderservice:latest -t ${{ env.ACR_LOGING_SERVER }}/petstoreorderservice:${{ github.sha }}
+        docker push ${{ env.ACR_LOGING_SERVER }}/petstoreorderservice:${{ github.sha }}
+        docker push  ${{ env.ACR_LOGING_SERVER }}/petstoreorderservice:latest
+        docker build src/petstorepetservice -t ${{env.ACR_LOGING_SERVER}}/petstorepetservice:latest -t ${{ env.ACR_LOGING_SERVER }}/petstorepetservice:${{ github.sha }}
+        docker push ${{ env.ACR_LOGING_SERVER }}/petstorepetservice:${{ github.sha }}
+        docker push  ${{ env.ACR_LOGING_SERVER }}/petstorepetservice:latest
+        docker build src/petstoreproductservice -t ${{env.ACR_LOGING_SERVER}}/petstoreproductservice:latest -t ${{ env.ACR_LOGING_SERVER }}/petstoreproductservice:${{ github.sha }}
+        docker push ${{ env.ACR_LOGING_SERVER }}/petstoreproductservice:${{ github.sha }}
+        docker push  ${{ env.ACR_LOGING_SERVER }}/petstoreproductservice:latest
       
