@@ -74,7 +74,7 @@ jobs:
         password: ${{ env.REGISTRY_PASSWORD }}
     - name: Push Docker image to Azure Container Registry    
       run: |
-        docker build petstore/petstoreapp -t ${{env.ACR_LOGING_SERVER}}/petstoreapp:latest -t ${{ env.ACR_LOGING_SERVER }}/petstoreapp:${{ github.sha }}
+        docker build src/petstoreapp -t ${{env.ACR_LOGING_SERVER}}/petstoreapp:latest -t ${{ env.ACR_LOGING_SERVER }}/petstoreapp:${{ github.sha }}
         docker push ${{ env.ACR_LOGING_SERVER }}/petstoreapp:${{ github.sha }}
         docker push  ${{ env.ACR_LOGING_SERVER }}/petstoreapp:latest
       
