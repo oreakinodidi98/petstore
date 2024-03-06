@@ -1,64 +1,12 @@
 data "azurerm_subscription" "current" {}
 data "azuread_client_config" "current" {}
 data "azurerm_client_config" "current" {}
-# data "azuread_user" "owner" {
-#   user_principal_name = var.owner_username
-# }
-
-# locals {
-#     app_owners = [
-#     data.azuread_client_config.current.object_id,
-#     data.azuread_user.owner.object_id
-# ]
-# }
-# # need to create an application in Azure AD before creating a service principal
-# resource "azuread_application" "main" {
-#   display_name = var.service_principal_name
-#   owners       = local.app_owners
-# }
-# # create a service principal for the application
-# resource "azuread_service_principal" "main" {
-#   client_id                    = azuread_application.main.client_id
-#   app_role_assignment_required = true
-#   owners                       = local.app_owners
-# }
-# # create a service principal password
-# resource "azuread_service_principal_password" "main" {
-#    display_name = "sp_password"
-#   service_principal_id = azuread_service_principal.main.object_id
-# }
-# #create service principla contributor role assighnment 
-# resource "azurerm_role_assignment" "sp_contributor_actions" {
-#   scope                = data.azurerm_subscription.current.id
-#   role_definition_name = "Contributor"
-#   principal_id         = azuread_service_principal.main.object_id
-# }
 # #create service principla KV role assighnment 
 # resource "azurerm_role_assignment" "sp_kv_admin" {
 #   scope                = data.azurerm_subscription.current.id
 #   role_definition_name = "Key Vault Administrator"
 #   principal_id         = azuread_service_principal.main.object_id
 # }
-# ############################################
-# #create azure ad group. makes owner the current terraform user
-# resource "azuread_group" "petstore_admins" {
-#   display_name = "${var.naming_prefix}_admins"
-#   description = "petstore-dev"
-#   security_enabled = true
-#   owners = [ data.azurerm_client_config.current.object_id ]
-# }
-# # # create members of the group
-# resource "azuread_group_member" "admin_member" {
-#   group_object_id  = azuread_group.petstore_admins.id
-#   member_object_id = data.azuread_user.admin_user.id
-# }
-# create key vault administrator role assignment at subscription scope with current user active directory
-# resource "azurerm_role_assignment" "current" {
-#   scope                = data.azurerm_subscription.current.id
-#   role_definition_name = "Key Vault Administrator"
-#   principal_id         = data.azuread_client_config.current.object_id
-# }
-
 #create managed identity
 resource "azurerm_user_assigned_identity" "app_assigned" {
   name                = "petstore-identity"
@@ -73,9 +21,15 @@ resource "azurerm_role_assignment" "role_rg" {
 }
 # create contributor role assignment at subscription scope with managed identity
 resource "azurerm_role_assignment" "contributor_role_assignment" {
-  scope                = data.azurerm_subscription.current.id
+  scope                = var.resourcegroup_id
   principal_id         = azurerm_user_assigned_identity.app_assigned.principal_id
   role_definition_name = "Contributor"
+}
+resource "azurerm_role_assignment" "aks_role_assighment" {
+  scope                = var.aks_id
+  role_definition_name = "Azure Kubernetes Service Cluster User Role"
+  principal_id         = azurerm_user_assigned_identity.app_assigned.principal_id
+  #principal_id         = "0b721d88-5586-4765-83ce-e609a355c644"
 }
 # create website contributor role assignment at resourcegroup scope with managed identity
 resource "azurerm_role_assignment" "website_contributor" {
@@ -89,8 +43,20 @@ resource "azurerm_role_assignment" "mi_kv_admin" {
   principal_id       = azurerm_user_assigned_identity.app_assigned.principal_id
   role_definition_name = "Key Vault Administrator"
 }
+#create key vault administrator role assignment at subscription scope with current user active directory
+resource "azurerm_role_assignment" "current" {
+  scope                = var.key_vault_id
+  role_definition_name = "Key Vault Administrator"
+  principal_id         = data.azuread_client_config.current.object_id
+}
+# Pull access for the app service
+resource "azurerm_role_assignment" "prod_app_service_acr_pull" {
+  scope                = var.acr_id
+  role_definition_name = "AcrPull"
+  principal_id         = var.prod_app_svc_principal_id
+}
 resource "azurerm_role_assignment" "storage_blob_data_contributor" {
-  scope                = data.azurerm_subscription.current.id
+  scope                = var.resourcegroup_id
   role_definition_name = "Storage Blob Data Contributor"
   principal_id         = azurerm_user_assigned_identity.app_assigned.principal_id
 }
@@ -112,18 +78,3 @@ resource "azurerm_federated_identity_credential" "petstore_assigned_identity_mai
   parent_id           = azurerm_user_assigned_identity.app_assigned.id
   subject             = "repo:oreakinodidi98/petstore:ref:refs/heads/main"
 }
-############################################
-# locals {
-#   admin_users = ["oreakinodidi@gmail.com", "admin@MngENVMCAP059812.onmicrosoft.com" ]
-# }
-# data "azuread_user" "admin_user" {
-#   count = length(local.admin_users)
-#   user_principal_name = local.admin_users[count.index]
-# }
-# resource "azuread_group_member" "admin_member" {
-#   count = length(local.admin_users)
-#   group_object_id  = azuread_group.petstore_admins.id
-#   member_object_id = data.azuread_user.admin_user[count.index].id
-# }
-
-#### service principal i am using needs application permission of group.readwrite.all permission and user.read.All permission
