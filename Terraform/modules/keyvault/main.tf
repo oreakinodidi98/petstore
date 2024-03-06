@@ -43,11 +43,6 @@ resource "azurerm_key_vault_access_policy" "petstore_terraform_subscribtion_kv" 
   certificate_permissions = [ "Create", "Get", "List", "Delete", "Import", "Update"]
 }
 
-# resource "azurerm_role_assignment" "terraform_keyvault_access" {
-#   scope                = azurerm_key_vault.kv.id
-#   role_definition_name = "Key Vault Administrator"
-#   principal_id         = data.azurerm_client_config.current.object_id
-# }
 resource "azurerm_key_vault_secret" "secret_acr_docker" {
   name         = var.name
   value        = var.value

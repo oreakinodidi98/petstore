@@ -6,7 +6,6 @@ on:
             - development
         paths:
             - 'Terraform/**'
-            - '.github/workflows/**'
     workflow_dispatch:
 
 env:

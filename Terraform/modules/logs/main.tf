@@ -69,12 +69,32 @@ resource "azurerm_load_test" "loadtest" {
   resource_group_name = var.resourcegroup
 }
 resource "azurerm_storage_account" "pet_storage" {
-  name                     = "devoa12storage"
+  name                     = "${random_string.prefix.id}storage"
   resource_group_name      = var.resourcegroup
   location                 = var.location
   account_tier             = "Standard"
   account_replication_type = "LRS"
 }
+resource "azurerm_storage_container" "this" {
+  name                  = "${random_string.prefix.id}test"
+  storage_account_name  = azurerm_storage_account.pet_storage.name
+  container_access_type = "private"
+}
+resource "random_string" "prefix" {
+  length  = 5
+  special = false
+  upper = false
+}
+
+# # Generate random text for a unique storage account name
+# resource "random_id" "random_id" {
+#   keepers = {
+#     # Generate a new ID only when a new resource group is defined
+#     resource_group = var.resourcegroup
+#   }
+
+#   byte_length = 8
+# }
 # resource "azurerm_monitor_diagnostic_setting" "kv_diagnostic_settings" {
 #   name               = "${random_pet.prefix.id}-diagnostic-settings"
 #   target_resource_id = var.key_vault_id

@@ -13,15 +13,16 @@ resource "azurerm_resource_group" "resourcegroup" {
 }
 # call the managed identity module
 module "managed_identity" {
-  source           = "./modules/identity"
-  location         = var.location
-  naming_prefix    = var.naming_prefix
-  resourcegroup    = var.resourcegroup
-  resourcegroup_id = azurerm_resource_group.resourcegroup.id
-  acr_id           = module.containers.acr_id
-  key_vault_id     = module.keyvault.key_vault_id
-  owner_username   = var.owner_username
-  depends_on       = [azurerm_resource_group.resourcegroup]
+  source                 = "./modules/identity"
+  location               = var.location
+  naming_prefix          = var.naming_prefix
+  resourcegroup          = var.resourcegroup
+  resourcegroup_id       = azurerm_resource_group.resourcegroup.id
+  acr_id                 = module.containers.acr_id
+  key_vault_id           = module.keyvault.key_vault_id
+  owner_username         = var.owner_username
+  service_principal_name = var.service_principal_name
+  depends_on             = [azurerm_resource_group.resourcegroup]
 }
 # call the containers module
 module "containers" {
@@ -104,19 +105,4 @@ module "keyvault" {
 #   key_vault_id = module.keyvault.key_vault_id
 
 #   depends_on = [module.keyvault.azurerm_key_vault_access_policy]
-# }
-# resource "random_string" "prefix" {
-#   length  = 5
-#   special = false
-#   upper = false
-# }
-
-# # Generate random text for a unique storage account name
-# resource "random_id" "random_id" {
-#   keepers = {
-#     # Generate a new ID only when a new resource group is defined
-#     resource_group = var.resourcegroup
-#   }
-
-#   byte_length = 8
 # }
