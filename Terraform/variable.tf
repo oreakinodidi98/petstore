@@ -75,7 +75,7 @@ variable "log_analytics_workspace_sku" {
 variable "sku_name" {
   type        = string
   description = "Select Standard or Premium SKU"
-  default     = "standard"
+  default     = "premium"
 }
 variable "enabled_for_deployment" {
   type        = string

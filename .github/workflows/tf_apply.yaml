@@ -67,15 +67,14 @@ jobs:
       run: |
           echo "AZURE_RESOURCE_GROUP=$(terraform output -raw rg_name)" >> petstore_tf_out.txt
           echo "RG_LOCATION=$(terraform output -raw rg_location)" >> petstore_tf_out.txt
-          echo "AZURE_CONTAINER_REGISTRY=$(terraform output -raw acr_login_server)" >> petstore_tf_out.txt
           echo "AZURE_CONTAINER_REGISTRY_USERNAME=$(terraform output -raw registry_username)" >> petstore_tf_out.txt
           echo "AZURE_CONTAINER_NAME=$(terraform output -raw acr_name)" >> petstore_tf_out.txt
           echo "ACR_LOGING_SERVER=$(terraform output -raw acr_login_server)" >> petstore_tf_out.txt
-          echo "ACR_USERNAME=$(terraform output -raw registry_username)" >> petstore_tf_out.txt
           echo "AZURE_AKS=$(terraform output -raw aks_name)" >> petstore_tf_out.txt
           echo "AZURE_DEV_APPSERVICE_ID=$(terraform output -raw dev_app_svc_id)" >> petstore_tf_out.txt
           echo "AZURE_DEV_APPSERVICE_NAME=$(terraform output -raw dev_app_svc_name)" >> petstore_tf_out.txt
           echo "LOG_ANALYTIC_NAME=$(terraform output -raw log_analytics_name)" >> petstore_tf_out.txt
+          echo "REGISTRY_PASSWORD=$(terraform output -raw registry_password)" >> petstore_tf_out.txt
           echo "AZURE_PROD_APPSERVICE_ID=$(terraform output -raw prod_app_svc_id)" >> petstore_tf_out.txt
           echo "AZURE_PROD_APPSERVICE_NAME=$(terraform output -raw prod_app_svc_name)" >> petstore_tf_out.txt
           echo "INSTROMENTATION_KEY=$(terraform output -raw instrumentation_key)" >> petstore_tf_out.txt
