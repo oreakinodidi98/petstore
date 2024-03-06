@@ -10,18 +10,6 @@ resource "azurerm_monitor_workspace" "aks_monitor_workspace" {
   resource_group_name = var.resourcegroup
   location            = var.location
 }
-# resource "azurerm_log_analytics_solution" "app-svc-insights" {
-#   solution_name         = "AppService"
-#   location              = azurerm_log_analytics_workspace.aks.location
-#   resource_group_name   = var.resourcegroup
-#   workspace_resource_id = azurerm_log_analytics_workspace.aks.id
-#   workspace_name        = azurerm_log_analytics_workspace.aks.name
-
-#   plan {
-#     publisher = "Microsoft"
-#     product   = "ContainerInsights"
-#   }
-# }
 resource "azurerm_log_analytics_solution" "aks-containerinsights" {
   solution_name         = "ContainerInsights"
   location              = azurerm_log_analytics_workspace.aks.location
@@ -119,16 +107,3 @@ resource "azurerm_storage_account" "pet_storage" {
 #     }
 #   }
 # }
-resource "random_pet" "prefix" {
-  prefix = var.naming_prefix
-  length = 1
-}
-# Generate random text for a unique storage account name
-resource "random_id" "random_id" {
-  keepers = {
-    # Generate a new ID only when a new resource group is defined
-    resource_group = var.resourcegroup
-  }
-
-  byte_length = 8
-}

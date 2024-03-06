@@ -17,9 +17,9 @@ resource "azurerm_linux_web_app" "prod_app_svc" {
       "WEBSITE_RUN_FROM_PACKAGE" = 1
       "WEBSITE_ENABLE_SYNC_UPDATE_SITE" = true
       "SCM_DO_BUILD_DURING_DEPLOYMENT" = true
-      # "DOCKER_REGISTRY_SERVER_USERNAME" = var.acr_name
-      # "DOCKER_REGISTRY_SERVER_URL" = "https://${var.acr_name}.azurecr.io"
-      # "DOCKER_REGISTRY_SERVER_PASSWORD" = var.registry_password
+      "DOCKER_REGISTRY_SERVER_USERNAME" = var.acr_name
+      "DOCKER_REGISTRY_SERVER_URL" = "https://${var.acr_name}.azurecr.io"
+      "DOCKER_REGISTRY_SERVER_PASSWORD" = var.registry_password
       "WEBSITES_ENABLE_APP_SERVICE_STORAGE" = "false"
       "DOCKER_ENABLE_CI" = "true"
       }
@@ -32,7 +32,7 @@ resource "azurerm_linux_web_app" "prod_app_svc" {
     container_registry_use_managed_identity= true
     container_registry_managed_identity_client_id = var.managed_identity_client_id
     application_stack{
-    docker_image_name = "${var.acr_name}.azurecr.io/petstoreapp:latest"
+    docker_image_name = "petstoreapp:latest"
     docker_registry_username = var.acr_name
     docker_registry_password = var.registry_password
     docker_registry_url = "https://${var.acr_name}.azurecr.io"
