@@ -1,44 +1,44 @@
 data "azurerm_subscription" "current" {}
 data "azuread_client_config" "current" {}
 data "azurerm_client_config" "current" {}
-data "azuread_user" "owner" {
-  user_principal_name = var.owner_username
-}
+# data "azuread_user" "owner" {
+#   user_principal_name = var.owner_username
+# }
 
-locals {
-    app_owners = [
-    data.azuread_client_config.current.object_id,
-    data.azuread_user.owner.object_id
-]
-}
-# need to create an application in Azure AD before creating a service principal
-resource "azuread_application" "main" {
-  display_name = var.service_principal_name
-  owners       = local.app_owners
-}
-# create a service principal for the application
-resource "azuread_service_principal" "main" {
-  client_id                    = azuread_application.main.client_id
-  app_role_assignment_required = true
-  owners                       = local.app_owners
-}
-# create a service principal password
-resource "azuread_service_principal_password" "main" {
-   display_name = "sp_password"
-  service_principal_id = azuread_service_principal.main.object_id
-}
-#create service principla contributor role assighnment 
-resource "azurerm_role_assignment" "sp_contributor_actions" {
-  scope                = data.azurerm_subscription.current.id
-  role_definition_name = "Contributor"
-  principal_id         = azuread_service_principal.main.object_id
-}
-#create service principla KV role assighnment 
-resource "azurerm_role_assignment" "sp_kv_admin" {
-  scope                = data.azurerm_subscription.current.id
-  role_definition_name = "Key Vault Administrator"
-  principal_id         = azuread_service_principal.main.object_id
-}
+# locals {
+#     app_owners = [
+#     data.azuread_client_config.current.object_id,
+#     data.azuread_user.owner.object_id
+# ]
+# }
+# # need to create an application in Azure AD before creating a service principal
+# resource "azuread_application" "main" {
+#   display_name = var.service_principal_name
+#   owners       = local.app_owners
+# }
+# # create a service principal for the application
+# resource "azuread_service_principal" "main" {
+#   client_id                    = azuread_application.main.client_id
+#   app_role_assignment_required = true
+#   owners                       = local.app_owners
+# }
+# # create a service principal password
+# resource "azuread_service_principal_password" "main" {
+#    display_name = "sp_password"
+#   service_principal_id = azuread_service_principal.main.object_id
+# }
+# #create service principla contributor role assighnment 
+# resource "azurerm_role_assignment" "sp_contributor_actions" {
+#   scope                = data.azurerm_subscription.current.id
+#   role_definition_name = "Contributor"
+#   principal_id         = azuread_service_principal.main.object_id
+# }
+# #create service principla KV role assighnment 
+# resource "azurerm_role_assignment" "sp_kv_admin" {
+#   scope                = data.azurerm_subscription.current.id
+#   role_definition_name = "Key Vault Administrator"
+#   principal_id         = azuread_service_principal.main.object_id
+# }
 # ############################################
 # #create azure ad group. makes owner the current terraform user
 # resource "azuread_group" "petstore_admins" {
@@ -58,6 +58,7 @@ resource "azurerm_role_assignment" "sp_kv_admin" {
 #   role_definition_name = "Key Vault Administrator"
 #   principal_id         = data.azuread_client_config.current.object_id
 # }
+
 #create managed identity
 resource "azurerm_user_assigned_identity" "app_assigned" {
   name                = "petstore-identity"

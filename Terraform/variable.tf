@@ -27,7 +27,9 @@ variable "tags" {
 variable "owner_username" {
   description = "The username of the owner of the AKS cluster"
   type        = string
-  default     = "oreakinodidi_microsoft.com#EXT#@fdpo.onmicrosoft.com"
+  #default     = "oreakinodidi_microsoft.com#EXT#@fdpo.onmicrosoft.com"
+  default = "oreakinodidi@microsoft.com"
+  # xxxx_microsoft.com#EXT#@AzureSDKTeam.onmicrosoft.com
 }
 variable "service_principal_name" {
   type    = string
