@@ -17,14 +17,18 @@ resource "azurerm_role_assignment" "acr_role_assighment" {
     azurerm_container_registry.acr
   ]
 }
-#role assighnment for acr to aks
-resource "azurerm_role_assignment" "acr_aks_role_assighment" {
+# Allow the AKS to pull images from ACR
+resource "azurerm_role_assignment" "aks_acr_pull_role" {
   scope                = azurerm_container_registry.acr.id
   role_definition_name = "AcrPull"
-  principal_id         = azurerm_kubernetes_cluster.aks_cluster.identity.0.principal_id
-   depends_on = [
-    azurerm_kubernetes_cluster.aks_cluster
-  ]
+  principal_id         = azurerm_kubernetes_cluster.aks_cluster.kubelet_identity.0.object_id
+}
+#role assighnment for acr to aks
+resource "azurerm_role_assignment" "aks_cluster_admin" {
+  scope                = azurerm_kubernetes_cluster.aks_cluster.id
+  role_definition_name = "Azure Kubernetes Service Cluster Admin Role"
+  principal_id         = "0b721d88-5586-4765-83ce-e609a355c644"
+  skip_service_principal_aad_check = true
 }
 #create acr
 resource "azurerm_container_registry" "acr" {
@@ -33,6 +37,12 @@ resource "azurerm_container_registry" "acr" {
   location            = var.location
   sku                 = "Standard"
   admin_enabled       = true
+  identity {
+    type = "UserAssigned"
+    identity_ids = [
+      var.managed_identity_id
+    ]
+  }
 }
 # create AKS cluster
 resource "azurerm_kubernetes_cluster" "aks_cluster" {

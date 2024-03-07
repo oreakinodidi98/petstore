@@ -36,6 +36,7 @@ terraform {
     storage_account_name = "tfstate01919804057"
     container_name       = "tfstate"
     key                  = "petstore.tfstate"
+    use_oidc             = true
   }
 
 }
