@@ -8,6 +8,18 @@ resource "azurerm_role_assignment" "aks_role_assighment" {
   role_definition_name = "Azure Kubernetes Service Cluster User Role"
   principal_id         = var.managed_identity_principal_id
 }
+#role assighnment for acr to aks
+resource "azurerm_role_assignment" "acr_role_assighment" {
+  scope                = azurerm_container_registry.acr.id
+  role_definition_name = "AcrPull"
+  principal_id         = var.managed_identity_principal_id
+}
+#role assighnment for acr to aks
+resource "azurerm_role_assignment" "acr_aks_role_assighment" {
+  scope                = azurerm_container_registry.acr.id
+  role_definition_name = "AcrPull"
+  principal_id         = azurerm_kubernetes_cluster.aks_cluster.identity.0.principal_id
+}
 #create acr
 resource "azurerm_container_registry" "acr" {
   name                = var.acr_name

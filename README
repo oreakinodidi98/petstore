@@ -217,6 +217,8 @@ az ad sp create-for-rbac --name "AzureResumeOA" --role contributor --scopes /sub
 
 - login to Azure
 
+az login --service-principal -u <app-id> -p <password> --tenant <tenant-id>
+
 ```kubectl
 helm install ingress-nginx ingress-nginx/ingress-nginx \
   --create-namespace \
