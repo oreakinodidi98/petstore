@@ -23,13 +23,12 @@ resource "azurerm_role_assignment" "aks_acr_pull_role" {
   role_definition_name = "AcrPull"
   principal_id         = azurerm_kubernetes_cluster.aks_cluster.kubelet_identity.0.object_id
 }
-#role assighnment for acr to aks
-resource "azurerm_role_assignment" "aks_cluster_admin" {
-  scope                = azurerm_kubernetes_cluster.aks_cluster.id
-  role_definition_name = "Azure Kubernetes Service Cluster Admin Role"
-  principal_id         = "0b721d88-5586-4765-83ce-e609a355c644"
-  skip_service_principal_aad_check = true
-}
+# #role assighnment for acr to aks
+# resource "azurerm_role_assignment" "aks_cluster_admin" {
+#   scope                = azurerm_kubernetes_cluster.aks_cluster.id
+#   role_definition_name = "Azure Kubernetes Service Cluster Admin Role"
+#   principal_id         = "0b721d88-5586-4765-83ce-e609a355c644"
+# }
 #create acr
 resource "azurerm_container_registry" "acr" {
   name                = var.acr_name
