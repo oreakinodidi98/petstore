@@ -13,7 +13,7 @@ resource "azurerm_key_vault" "kv" {
   enabled_for_template_deployment = var.enabled_for_template_deployment
 
 }
-resource "azurerm_key_vault_access_policy" "Keyvault_terraform_user" {
+resource "azurerm_key_vault_access_policy" "mi_terraform_kv" {
   key_vault_id = azurerm_key_vault.kv.id
   tenant_id    = data.azurerm_client_config.current.tenant_id
   object_id    = var.managed_identity_principal_id
@@ -26,7 +26,7 @@ resource "azurerm_key_vault_access_policy" "Keyvault_terraform_user" {
   secret_permissions = ["Get", "List", "Set", "Delete", "Recover", "Backup", "Restore", "Purge"]
   storage_permissions = [ "Get" ]
 }
-resource "azurerm_key_vault_access_policy" "petstore_terraform_subscribtion_kv" {
+resource "azurerm_key_vault_access_policy" "sp_access_kv" {
   key_vault_id = azurerm_key_vault.kv.id
   tenant_id    = data.azurerm_client_config.current.tenant_id
   object_id    = data.azurerm_client_config.current.object_id
@@ -36,22 +36,31 @@ resource "azurerm_key_vault_access_policy" "petstore_terraform_subscribtion_kv" 
   storage_permissions = [ "Get", "List", "Set", "Delete" ]
   certificate_permissions = [ "Create", "Get", "List", "Delete", "Import", "Update"]
 }
+resource "azurerm_key_vault_access_policy" "user_access_kv" {
+  key_vault_id = azurerm_key_vault.kv.id
+  tenant_id    = data.azurerm_client_config.current.tenant_id
+  object_id    = "0b721d88-5586-4765-83ce-e609a355c644"
 
+  key_permissions = ["Get", "List", "Update", "Create", "Import", "Delete", "Recover", "Backup", "Restore", "Decrypt", "Encrypt", "UnwrapKey", "WrapKey", "Verify", "Sign", "Purge", "Release", "Rotate", "GetRotationPolicy", "SetRotationPolicy"]
+  secret_permissions = ["Get", "List", "Set", "Delete", "Recover", "Backup", "Restore", "Purge"]
+  storage_permissions = [ "Get", "List", "Set", "Delete" ]
+  certificate_permissions = [ "Create", "Get", "List", "Delete", "Import", "Update"]
+}
 resource "azurerm_key_vault_secret" "secret_acr_docker" {
   name         = var.name
   value        = var.value
   key_vault_id = azurerm_key_vault.kv.id
-  depends_on = [ azurerm_key_vault_access_policy.petstore_terraform_subscribtion_kv ]
+  depends_on = [ azurerm_key_vault_access_policy.sp_access_kv ]
 }
 resource "azurerm_key_vault_secret" "ssh_public_key" {
   name         = "ssh-public-key"
   value        = var.tls_public_key
   key_vault_id = azurerm_key_vault.kv.id
-  depends_on = [ azurerm_key_vault_access_policy.petstore_terraform_subscribtion_kv ]
+  depends_on = [ azurerm_key_vault_access_policy.sp_access_kv ]
 }
 resource "azurerm_key_vault_secret" "ssh_private_key" {
   name         = "ssh-private-key"
   value        = var.tls_private_key
   key_vault_id = azurerm_key_vault.kv.id
-  depends_on = [ azurerm_key_vault_access_policy.petstore_terraform_subscribtion_kv ]
+  depends_on = [ azurerm_key_vault_access_policy.sp_access_kv ]
 }
